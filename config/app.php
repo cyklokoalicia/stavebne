@@ -144,7 +144,12 @@ return [
         Monitor\Providers\AuthServiceProvider::class,
         Monitor\Providers\EventServiceProvider::class,
         Monitor\Providers\RouteServiceProvider::class,
-
+		
+		/*
+		 * Third party Service Providers
+		 */		
+		
+		Orangehill\Iseed\IseedServiceProvider::class,
     ],
 
     /*

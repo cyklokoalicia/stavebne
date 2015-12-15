@@ -12,7 +12,7 @@ class CreateProceedingsTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('ProceedingsTypes', function (Blueprint $table) {
+        Schema::create('proceedings_types', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
         });
