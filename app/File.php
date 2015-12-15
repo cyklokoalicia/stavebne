@@ -10,5 +10,7 @@ class Files extends Model
 		'filename',
 		'mime_type',
 		'caption',
-		'filesize'];
+		'filesize',
+		'metadata',
+		'proceeding_id'];
 }

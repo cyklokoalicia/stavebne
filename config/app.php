@@ -150,6 +150,7 @@ return [
 		 */		
 		
 		Orangehill\Iseed\IseedServiceProvider::class,
+		Yangqi\Htmldom\HtmldomServiceProvider::class,
     ],
 
     /*
@@ -197,7 +198,12 @@ return [
         'URL'       => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View'      => Illuminate\Support\Facades\View::class,
-
+		
+		/*
+		 * Third party packages
+		 */
+		
+		'Htmldom' => Yangqi\Htmldom\Htmldom::class,
     ],
 
 ];

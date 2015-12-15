@@ -4,13 +4,16 @@ namespace Monitor;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Project extends Model
+class Proceeding extends Model
 {
     protected $fillable = [
-		'title',
-		'description',
+		'file_reference',
 		'aplicant',
+		'notified_at',
+		'decided_at',
 		'posted_at',
 		'droped_at',
-		'city_district_id'];
+		'project_id',
+		'proceeding_id',
+		'proceeding_type_id'];
 }
