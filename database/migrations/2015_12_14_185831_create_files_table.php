@@ -12,16 +12,17 @@ class CreateFilesTable extends Migration
      */
     public function up()
     {
-        Schema::create('files', function (Blueprint $table) {
+        Schema::create('files', function (Blueprint $table) {			
             $table->increments('id');
             $table->text('filename');
             $table->string('mime_type');
             $table->string('caption');
             $table->integer('filesize');
-            $table->integer('project_id')->unsigned();
+			$table->json('metadata')->nullable()->default(null);
+			$table->integer('proceeding_id')->unsigned();
 			$table->timestamps();
-            
-            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
+			
+            $table->foreign('proceeding_id')->references('id')->on('proceedings')->onDelete('cascade');
         });
     }
 
@@ -34,7 +35,7 @@ class CreateFilesTable extends Migration
     {
 		Schema::table('files', function (Blueprint $table)
         {
-            $table->dropForeign('files_project_id_foreign');
+            $table->dropForeign('files_proceeding_id_foreign');
         });
 		
         Schema::drop('files');

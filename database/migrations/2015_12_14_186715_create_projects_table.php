@@ -14,14 +14,11 @@ class CreateProjectsTable extends Migration
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('tilte');
-			$table->string('file_reference');
-			$table->text('description');
-			$table->text('aplicant');
-			$table->date('notified_at');
-			$table->date('decided_at');
-			$table->date('posted_at');
-			$table->date('droped_at');
+			$table->string('title')->nullable()->default(null);
+			$table->text('description')->nullable()->default(null);
+			$table->text('aplicant')->nullable()->default(null); 
+			$table->date('posted_at')->nullable()->default(null);
+			$table->date('droped_at')->nullable()->default(null);
 			$table->integer('city_district_id')->unsigned();
             $table->timestamps();
 			$table->softDeletes();

@@ -1,5 +1,5 @@
 suites:
     main:
-        namespace: App
-        psr4_prefix: App
+        namespace: Monitor
+        psr4_prefix: Monitor
         src_path: app
