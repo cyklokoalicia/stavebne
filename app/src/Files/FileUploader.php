@@ -10,6 +10,8 @@ class FileUploader
 
 	public function upload($url, $file_caption, $proceedind_id)
 	{	
+		$headers = get_headers($url, 1);
+		
 		$data = [
 			'original_filename' => basename($url),
 			'file_size' =>  $headers['Content-Length'],
