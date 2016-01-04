@@ -14,11 +14,12 @@ class CreateFilesTable extends Migration
     {
         Schema::create('files', function (Blueprint $table) {			
             $table->increments('id');
-            $table->text('filename');
+            $table->text('original_filename');
             $table->string('mime_type');
+			$table->string('file_extension');
             $table->string('caption');
-            $table->integer('filesize');
-			$table->json('metadata')->nullable()->default(null);
+            $table->integer('file_size')->comment('bytes');
+			$table->text('metadata')->nullable()->default(null);
 			$table->integer('proceeding_id')->unsigned();
 			$table->timestamps();
 			

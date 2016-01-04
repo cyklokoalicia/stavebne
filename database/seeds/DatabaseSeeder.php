@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         Model::reguard();
     	$this->call('CityDistrictsTableSeeder');
 		$this->call('DistrictsTableSeeder');
-		$this->call('ProceedingsTypesTableSeeder');
-		$this->call('ProceedingsPhasesTableSeeder');
+		$this->call('ProceedingTypesTableSeeder');
+		$this->call('ProceedingPhasesTableSeeder');
 	}
 }

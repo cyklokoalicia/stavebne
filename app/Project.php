@@ -13,4 +13,11 @@ class Project extends Model
 		'posted_at',
 		'droped_at',
 		'city_district_id'];
+	
+	//relations
+	
+	public function proceedings()
+    {
+        return $this->hasMany('Monitor\Proceeding');
+    }
 }

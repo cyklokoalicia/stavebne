@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateProceedingsPhasesTable extends Migration
+class CreateProceedingPhasesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class CreateProceedingsPhasesTable extends Migration
      */
     public function up()
     {
-        Schema::create('proceedings_phases', function (Blueprint $table) {
+        Schema::create('proceeding_phases', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
         });
@@ -25,6 +25,6 @@ class CreateProceedingsPhasesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('ProceedingsPhases');
+        Schema::drop('proceeding_phases');
     }
 }

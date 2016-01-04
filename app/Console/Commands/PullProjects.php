@@ -3,30 +3,18 @@
 namespace Monitor\Console\Commands;
 
 use Illuminate\Console\Command;
+use Monitor\src\Projects\PullNewProjectsDataCommand;
 
 class PullProjects extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'project:pull';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Pull data of projects from the all web pages of city districts' ;
+	
+	protected $projectPuller;
 
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function __construct(PullNewProjectsDataCommand $projectPuller)
     {
+		$this->projectPuller = $projectPuller;
         parent::__construct();
     }
 
@@ -37,6 +25,6 @@ class PullProjects extends Command
      */
     public function handle()
     {
-        //
+		$this->info($this->projectPuller->pull());
     }
 }

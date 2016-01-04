@@ -28,11 +28,11 @@ class CreateCityDistrictsTable extends Migration
      */
     public function down()
     {
-		Schema::table('city_disctricts', function (Blueprint $table)
+		Schema::table('city_districts', function (Blueprint $table)
         {
-            $table->dropForeign('city_disctricts_district_id_foreign');
+            $table->dropForeign('city_districts_district_id_foreign');
         });	
 		
-        Schema::drop('city_disctricts');
+        Schema::drop('city_districts');
     }
 }

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class ProceedingsTypesTableSeeder extends Seeder {
+class ProceedingTypesTableSeeder extends Seeder {
 
 	/**
 	 * Auto generated seed file
@@ -11,9 +11,9 @@ class ProceedingsTypesTableSeeder extends Seeder {
 	 */
 	public function run()
 	{
-		\DB::table('proceedings_types')->delete();
+		\DB::table('proceeding_types')->delete();
         
-		\DB::table('proceedings_types')->insert(array (
+		\DB::table('proceeding_types')->insert(array (
 			0 => 
 			array (
 				'id' => 1,
@@ -28,16 +28,6 @@ class ProceedingsTypesTableSeeder extends Seeder {
 			array (
 				'id' => 3,
 				'name' => 'kolaudačné konanie',
-			),
-			3 => 
-			array (
-				'id' => 4,
-				'name' => 'zmena',
-			),
-			4 => 
-			array (
-				'id' => 5,
-				'name' => 'nie je známe',
 			),
 		));
 	}

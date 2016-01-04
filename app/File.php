@@ -4,13 +4,14 @@ namespace Monitor;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Files extends Model
+class File extends Model
 {
     protected $fillable = [
-		'filename',
+		'original_filename',
 		'mime_type',
+		'file_extension',
 		'caption',
-		'filesize',
+		'file_size',
 		'metadata',
 		'proceeding_id'];
 }

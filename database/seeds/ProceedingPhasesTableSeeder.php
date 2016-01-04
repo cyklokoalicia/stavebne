@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class ProceedingsPhasesTableSeeder extends Seeder {
+class ProceedingPhasesTableSeeder extends Seeder {
 
 	/**
 	 * Auto generated seed file
@@ -11,9 +11,9 @@ class ProceedingsPhasesTableSeeder extends Seeder {
 	 */
 	public function run()
 	{
-		\DB::table('proceedings_phases')->delete();
+		\DB::table('proceeding_phases')->delete();
         
-		\DB::table('proceedings_phases')->insert(array (
+		\DB::table('proceeding_phases')->insert(array (
 			0 => 
 			array (
 				'id' => 1,
