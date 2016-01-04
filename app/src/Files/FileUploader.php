@@ -26,6 +26,5 @@ class FileUploader
 		$remoteFile = file_get_contents($url);
 
 		file_put_contents($newFileName, $remoteFile);
-
 	}
 }
