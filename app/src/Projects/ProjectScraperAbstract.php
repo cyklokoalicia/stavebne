@@ -2,7 +2,7 @@
 
 namespace Monitor\src\Projects;
 
-abstract class ProjectScraperAbstractd
+abstract class ProjectScraperAbstract
 {
 
 	public $domain;

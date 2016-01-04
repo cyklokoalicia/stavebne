@@ -9,16 +9,7 @@ class FileUploader
 {
 
 	public function upload($url, $file_caption, $proceedind_id)
-	{
-		$headers = get_headers($url, 1);
-		
-		$ch = curl_init($url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_HEADER, 1);
-curl_setopt($ch, CURLOPT_NOBODY, 1);
-curl_exec($ch);
-		
+	{	
 		$data = [
 			'original_filename' => basename($url),
 			'file_size' =>  $headers['Content-Length'],
