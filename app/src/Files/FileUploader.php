@@ -18,8 +18,6 @@ curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 curl_setopt($ch, CURLOPT_HEADER, 1);
 curl_setopt($ch, CURLOPT_NOBODY, 1);
 curl_exec($ch);
-
-dd(curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
 		
 		$data = [
 			'original_filename' => basename($url),
