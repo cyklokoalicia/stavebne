@@ -31,10 +31,10 @@ class PullNewProjectsDataCommand
 	
 	public function pull()
 	{
-//		$RuzinovProjects = $this->projectScraper->scrapeNew('Ružinov');
-		$StareMestoProjects = $this->projectScraper->scrapeNew('Staré Mesto');
+		$RuzinovProjects = $this->projectScraper->scrapeNew('Ružinov');
+//		$StareMestoProjects = $this->projectScraper->scrapeNew('Staré Mesto');
 		
-		$projects = array_merge($StareMestoProjects);
+		$projects = array_merge($RuzinovProjects);
 
 		foreach ($projects as $project){
 			$project['city_district_id'] = CityDistrict::where('name', '=', $project['city_district'])->first()->id;
