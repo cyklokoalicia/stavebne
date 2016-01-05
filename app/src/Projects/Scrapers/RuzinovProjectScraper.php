@@ -20,9 +20,9 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 		return $projects;
 	}
 
-	protected function getConcrateProject($project)
+	protected function getConcrateProject($projectArea)
 	{
-		$link = $project->getElementByTagName('a')->getAttribute('href');
+		$link = $projectArea->getElementByTagName('a')->getAttribute('href');
 
 		$html = new Htmldom($this->domain . $link);
 		$project = $html->getElementById('main');
@@ -32,13 +32,12 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 
 	protected function isProjectNew($project)
 	{
-		$title = $this->getProceedingTitle($project);
 		$proceedingPostDate = $this->getProceedingPostDate($project);
 		$proceedingFileReference = $this->getProceedingFileReference($project);
 
-		$proceeding = Project::whereHas('proceedings', function($q) use ($proceedingFileReference, $proceedingPostDate, $title)
+		$proceeding = Project::whereHas('proceedings', function($q) use ($proceedingFileReference, $proceedingPostDate)
 			{
-				$q->where('posted_at', '=', $proceedingPostDate)->where('file_reference', '=', $proceedingFileReference)->where('title', '=', $title);
+				$q->where('posted_at', '=', $proceedingPostDate)->where('file_reference', '=', $proceedingFileReference);
 			})->get()->count();
 
 		return $proceeding ? false : true;
@@ -51,6 +50,12 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 
 	protected function getProceedingDescription($project)
 	{
+		$p = $project->getElementsByTagName('tr', 2)->find('td', 0)->plaintext;
+
+		if (stripos($p, 'Popis') === false) {
+			return null;
+		}
+
 		return $project->getElementsByTagName('tr', 2)->find('td', 1)->plaintext;
 	}
 
@@ -80,22 +85,36 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 
 	protected function getFileUrl($project)
 	{
-		if ($fileRow = $project->getElementsByTagName('tr', 3)) {
-			$link = $fileRow->find('td', 1)->getElementByTagName('a')->getAttribute('href');
+		$rows = $fileRow = $project->getElementsByTagName('tr');
 
-			return $this->domain . $link;
-		} else {
-			return null;
+		foreach ($rows as $row){
+			$p = $row->find('td', 0)->plaintext;
+
+			if (stripos($p, 'Prílohy') !== false) {
+				$link =  $row->find('td', 1)->getElementByTagName('a')->getAttribute('href');
+				
+				return $this->domain . $link;
+			}
 		}
+
+		return null;
 	}
-	
-	protected function getFileCaption($project) {
-		if ($fileRow = $project->getElementsByTagName('tr', 3)) {
-			$caption = $fileRow->find('td', 1)->getElementByTagName('a')->getAttribute('title');
 
-			return $caption;
-		} else {
-			return null;
+	protected function getFileCaption($project)
+	{
+		
+		$rows = $fileRow = $project->getElementsByTagName('tr');
+
+		foreach ($rows as $row){
+			$p = $row->find('td', 0)->plaintext;
+
+			if (stripos($p, 'Prílohy') !== false) {
+				$caption = $row->find('td', 1)->getElementByTagName('a')->getAttribute('title');
+				
+				return $caption;
+			}
 		}
+
+		return null;
 	}
 }
