@@ -29,11 +29,10 @@ class StareMestoProjectScraper extends ProjectScraperAbstract
 	{
 		$proceedingTitle = $this->getProceedingTitle($project);
 		$proceedingPostDate = $this->getProceedingPostDate($project);
-		$proceedingFileReference = $this->getProceedingFileReference($project);
 
-		$proceeding = Project::whereHas('proceedings', function($q) use ($proceedingFileReference, $proceedingPostDate,$proceedingTitle)
+		$proceeding = Project::whereHas('proceedings', function($q) use ( $proceedingPostDate, $proceedingTitle)
 			{
-				$q->where('posted_at', '=', $proceedingPostDate)->where('file_reference', '=', $proceedingFileReference);
+				$q->where('posted_at', '=', $proceedingPostDate)->where('title', '=', $proceedingTitle);
 			})->get()->count();
 
 		return $proceeding ? false : true;
