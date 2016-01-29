@@ -163,6 +163,10 @@ return [
 		
 		Orangehill\Iseed\IseedServiceProvider::class,
 		Yangqi\Htmldom\HtmldomServiceProvider::class,
+#by mmm
+		Way\Generators\GeneratorsServiceProvider::class,
+		Xethron\MigrationsGenerator\MigrationsGeneratorServiceProvider::class,
+		Orangehill\Iseed\IseedServiceProvider::class,
     ],
 
     /*

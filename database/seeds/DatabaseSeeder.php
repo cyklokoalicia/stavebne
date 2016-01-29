@@ -21,5 +21,7 @@ class DatabaseSeeder extends Seeder
     	$this->call('CityDistrictsTableSeeder');
 		$this->call('ProceedingTypesTableSeeder');
 		$this->call('ProceedingPhasesTableSeeder');
-	}
+	    $this->call('KadastresTableSeeder');
+        $this->call('GpsTableSeeder');
+    }
 }
