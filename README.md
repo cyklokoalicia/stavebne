@@ -8,6 +8,12 @@ Monitoring stavebnych konani Bratislava
 5. Prepare database: `php artisan migrate && php artisan db:seed`
 6. Run: `php artisan project:pull`
 
+# Prototyping version
+
+http://stavebne.cyklokoalicia.sk/
+
+
+
 ## Laravel PHP Framework
 
 [![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
