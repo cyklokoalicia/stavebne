@@ -23,7 +23,7 @@ class CreateParcelsTable extends Migration
 			$table->softDeletes();
 			
 			$table->foreign('kadaster_id')->references('id')->on('kadasters');
-			$table->foreign('proceeding_id')->references('id')->on('proceedings');
+			$table->foreign('file_id')->references('id')->on('files');
 			
         });
     }
@@ -38,7 +38,7 @@ class CreateParcelsTable extends Migration
 		Schema::table('parcels', function (Blueprint $table)
         {
             $table->dropForeign('parcels_kadaster_id_foreign');
-			$table->dropForeign('parcels_proceeding_id_foreign');
+			$table->dropForeign('parcels_file_id_foreign');
         });
 		
         Schema::drop('parcels');
