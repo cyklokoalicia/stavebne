@@ -18,6 +18,8 @@ class CreateProceedingsTable extends Migration
 			$table->text('description')->nullable()->default(null);
 			$table->string('file_reference')->nullable()->default(null);
 			$table->text('aplicant')->nullable()->default(null);
+			$table->decimal('gps_lon', 11, 7);
+			$table->decimal('gps_lat', 11, 7);
 			$table->boolean('building_change')->default(false); 
 			$table->date('notified_at')->nullable()->default(null);
 			$table->date('decided_at')->nullable()->default(null);
