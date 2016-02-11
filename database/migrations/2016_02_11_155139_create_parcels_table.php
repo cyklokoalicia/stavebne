@@ -19,7 +19,7 @@ class CreateParcelsTable extends Migration
 			$table->decimal('gps_lon', 11, 7);
 			$table->decimal('gps_lat', 11, 7);
 			$table->integer('kadaster_id')->unsigned();
-			$table->integer('proceeding_id')->unsigned();	
+			$table->integer('file_id')->unsigned();	
 			$table->softDeletes();
 			
 			$table->foreign('kadaster_id')->references('id')->on('kadasters');
