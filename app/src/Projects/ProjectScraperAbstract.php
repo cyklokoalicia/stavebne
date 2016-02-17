@@ -2,69 +2,60 @@
 
 namespace Monitor\src\Projects;
 
+use Monitor\CityDistrict;
+use Monitor\File;
+use Monitor\ProceedingType;
+use Monitor\ProceedingPhase;
+use Monitor\src\Files\FileUploader;
+use Monitor\src\Proceedings\ProceedingStoreCommand;
+use Monitor\src\Projects\ProjectStoreCommand;
+use Htmldom;
+
 abstract class ProjectScraperAbstract
 {
 
-	public $domain;
-	//must be set
+	//you have to set city district name	
 	protected $city_district;
-	//must be set
+	//acces to web html
+	public $web;
+	//set url or get from config file using city district name
 	protected $url;
+	protected $domain;
+	//you have to set project data
+	protected $data;
+	protected $projectStorer;
+	protected $proceedingStorer;
+	protected $uploader;
 
-	// find all projects on web
-	abstract protected function getProjects();
+	abstract protected function getAllProjects();
 
-	//find concrate project (open him when you need)
-	abstract protected function getConcrateProject($projectArea);
-
-	//if project exist in database
 	abstract protected function isProjectNew($project);
 
-	//get new projects data
-	public function scrapeNew()
+	abstract protected function getData($project);
+
+	protected function setObjects()
 	{
-		$this->domain = $this->getDomainName($this->url);
-		$projects = $this->getProjects();
+		$this->proceedingStorer = new ProceedingStoreCommand();
+		$this->projectStorer = new ProjectStoreCommand();
+		$this->uploader = new FileUploader();
+	}
 
-		$data = [];
+	protected function setUrl()
+	{
+		$this->url = $this->url ? $this->url : config('monitor.url.' . $this->city_district);
 
-		foreach ($projects as $projectArea){
+		return $this->url;
+	}
 
-			$project = $this->getConcrateProject($projectArea);
+	//get domain name with scheme
+	protected function getDomainName($url)
+	{
+		return parse_url($url, PHP_URL_SCHEME) . '://' . parse_url($url, PHP_URL_HOST);
+	}
 
-			if (!$this->isProjectNew($project)) {
-				continue;
-			}
-
-			$data[] = [
-				'title' => $this->getTitle($project),
-				'description' => $this->getDescription($project),
-				'aplicant' => $this->getAplicant($project),
-				'posted_at' => $this->getPosteDate($project),
-				'droped_at' => $this->getDropeDate($project),
-				'city_district' => $this->city_district,
-				'proceeding' => [
-					'title' => $this->getProceedingTitle($project),
-					'description' => $this->getProceedingDescription($project),
-					'file_reference' => $this->getProceedingFileReference($project),
-					'aplicant' => $this->getProceedingAplicant($project),
-					'building_change' => $this->isBuildingChange($project),
-					'notified_at' => $this->getProceedingNotificationDate($project),
-					'decided_at' => $this->getProceedingDecisionDate($project),
-					'posted_at' => $this->getProceedingPostDate($project),
-					'droped_at' => $this->getProceedingDropDate($project),
-					'proceeding_type' => $this->getProceedingType($project),
-					'proceeding_phase' => $this->getProceedingPhase($project),
-					'fileUrl' => $this->getFileUrl($project),
-					'fileCaption' => $this->getFileCaption($project),
-				]
-			];
-		}
-
-		//change order from oldest projects
-		$reversed_data = array_reverse($data);
-
-		return $this->trimData($reversed_data);
+	protected function openWeb($url)
+	{
+		return new Htmldom($url);
 	}
 
 	protected function trimData($data)
@@ -77,141 +68,158 @@ abstract class ProjectScraperAbstract
 		return $data;
 	}
 
-	//get domain name with scheme
-	protected function getDomainName($url)
+	public function scrape()
 	{
-		return parse_url($url, PHP_URL_SCHEME) . '://' . parse_url($url, PHP_URL_HOST);
+		$this->setObjects();
+		$url = $this->setUrl();
+		$this->domain = $this->getDomainName($url);
+		$this->web = $this->openWeb($url);
+
+		$projets = $this->getAllProjects();
+
+		if (empty($projets)) {
+			throw new \Monitor\src\Projects\EmptyProjectsException();
+		}
+
+		$newData = [];
+
+		$projets = array_reverse($projets);
+
+		foreach ($projets as $project){
+			$data = $this->getData($project);
+
+			if ($data == false || $data == null || empty($data)) {
+				continue;
+			}
+
+			$data = $this->trimData($data);
+			$newData[] = $this->saveData($data);
+		}
+
+		return $newData;
 	}
-	/* 	
-	 * Overwrite functions where function return null,only if we know get value
+	/*
+	 * Functions for no repeating same logic in all children
 	 */
 
-	//find tile in project and return him
-	protected function getTitle($project)
+	protected function saveData($data)
 	{
-		return null;
+		$savedData = [];
+
+		$project = isset($data['project']) ? $data['project'] : array();
+		$savedData['project'] = $project = $this->saveProject($project);
+
+		if (is_array(current($data['proceedings']))) {
+			foreach ($data['proceedings'] as $proceeding){
+				$savedData['proceeding'][] = $this->saveProceeding($project->id, $proceeding);
+			}
+		} else {
+			$savedData['proceeding'][] = $this->saveProceeding($project->id, $data['proceedings']);
+		}
 	}
 
-	//find tile in project and return him
-	protected function getDescription($project)
+	protected function saveProject($project)
 	{
-		return null;
+		$project['city_district_id'] = CityDistrict::where('name', '=', $this->city_district)->first()->id;
+		$project = $this->projectStorer->store($project);
+
+		return $project;
 	}
 
-	//find aplicant in project and return him (or null)
-	protected function getAplicant($project)
+	protected function saveFiles($proceeding_id, $files)
 	{
-		return null;
+		$files = is_array(current($files)) ? $files : array($files);
+
+		foreach ($files as $file){
+			$headers = get_headers($file['url'], 1);
+			
+			$info = pathinfo($file['url']);
+			
+			$file_data = [
+				'original_filename' => $info['basename'],
+				'file_size' => $headers['Content-Length'],
+				'mime_type' => $headers['Content-Type'],
+				'file_extension' => $info['extension'],
+				'proceeding_id' => $proceeding_id
+			];
+
+			$file_data['caption'] = isset($file['caption']) ? $file['caption'] : $file_data['original_filename'];
+			$newFile = File::create($file_data);
+			$file_name = $newFile->id . '.' . $file_data['file_extension'];
+
+			$this->uploader->upload($file['url'], $file_name);
+		}
 	}
 
-	//find post date in project and return him (or null)
-	protected function getPosteDate($project)
+	protected function saveProceeding($project_id, $proceeding)
 	{
-		return null;
+		$stringsArray = [];
+
+		$proceeding['project_id'] = $project_id;
+
+		if (isset($proceeding['title'])) {
+			$stringsArray[] = $proceeding['title'];
+		}
+
+		if (isset($proceeding['description'])) {
+			$stringsArray[] = $proceeding['description'];
+		}
+
+		if (!isset($proceeding['proceeding_type'])) {
+			$proceedingType = $this->getProceedingType($stringsArray);
+			$proceeding['proceeding_type_id'] = ProceedingType::where('name', '=', $proceedingType)->first()->id;
+			$proceeding['building_change'] = $this->isBuildingChange($proceedingType, $stringsArray);
+		}
+
+		if (!isset($proceeding['proceeding_phase'])) {
+			$proceedingPhase = $this->getProceedingPhase($stringsArray);
+			$proceeding['proceeding_phase_id'] = ProceedingPhase::where('name', '=', $proceedingPhase)->first()->id;
+		}
+
+		$newProceeding = $this->proceedingStorer->store($proceeding);
+
+		if (isset($proceeding['files'])) {
+			$this->saveFiles($newProceeding->id, $proceeding['files']);
+		}
+
+
+		return $newProceeding;
 	}
 
-	//find drope date in project and return him (or null)
-	protected function getDropeDate($project)
+	//detect in all strings if proceeding is build change ( title, description)
+	protected function isBuildingChange($proceedingType, array $arrayStrings = [])
 	{
-		return null;
-	}
+		$change = false;
 
-	//find proceeding title in project and return him (or null)
-	protected function getProceedingTitle($project)
-	{
-		return null;
-	}
+		if ($proceedingType == 'stavebné konanie') {
+			foreach ($arrayStrings as $string){
+				if (!(stripos($string, 'zmen') === false)) {
+					$change = true;
 
-	//find proceeding description in project and return him (or null)
-	protected function getProceedingDescription($project)
-	{
-		return null;
-	}
-
-	//find proceeding file reference in project and return him (or null)
-	protected function getProceedingFileReference($project)
-	{
-		return null;
-	}
-
-	//find proceeding aplicant in project and return him (or null)
-	protected function getProceedingAplicant($project)
-	{
-		return null;
-	}
-
-	//find proceeding aplicant in project and return him (or null)
-	protected function isBuildingChange($project)
-	{
-		$type = $this->getProceedingType($project);
-		$title = $this->getProceedingTitle($project);
-		$description = $this->getProceedingDescription($project);
-		
-		$matched = false;
-		
-		if ($type == 'stavebné konanie') {
-			if (!(stripos($title, 'zmen') === false)) {
-				$matched = true;
-			} elseif(!(stripos($description, 'zmen') === false)) {
-				$matched = true;
+					break;
+				}
 			}
 		}
-		
-		return $matched;
+
+		return $change;
 	}
 
-	//find proceeding notify date in project and return him (or null)
-	protected function getProceedingNotificationDate($project)
+	//search proceeding type in all strings ( title, description)
+	protected function getProceedingType(array $arrayStrings)
 	{
-		return null;
-	}
-
-	//find proceeding decission date in project and return him (or null)
-	protected function getProceedingDecisionDate($project)
-	{
-		return null;
-	}
-
-	//find proceeding post date in project and return him (or null)
-	protected function getProceedingPostDate($project)
-	{
-		return null;
-	}
-
-	//find proceeding drop date in project and return him (or null)
-	protected function getProceedingDropDate($project)
-	{
-		return null;
-	}
-
-	//find proceeding type in project and return him (or null)
-	protected function getProceedingType($project)
-	{
-		$title = $this->getProceedingTitle($project);
-		$description = $this->getProceedingDescription($project);
-
 		$proceeding_types = [
 			'územné konanie' => 'územn',
 			'kolaudačné konanie' => 'kolaud',
 			'stavebné konanie' => 'staveb',
 		];
 
-		$matched = null;
+		$matched = false;
 
-		//search in title
 		foreach ($proceeding_types as $proceeding => $expression){
-			if (!(stripos($title, $expression) === false)) {
-				$matched = $proceeding;
-				break;
-			}
-		}
-
-		//search in description if no match in title
-		if (!$matched) {
-			foreach ($proceeding_types as $type => $expression){
-				if (!(stripos($description, $expression) === false)) {
-					$matched = $type;
-					break;
+			foreach ($arrayStrings as $string){
+				if (!(stripos($string, $expression) === false)) {
+					$matched = $proceeding;
+					break 2;
 				}
 			}
 		}
@@ -219,44 +227,21 @@ abstract class ProjectScraperAbstract
 		return $matched ? $matched : 'stavebné konanie';
 	}
 
-	protected function getProceedingPhase($project)
+	//search proceeding phase in all given strings ( e.g. title, description)
+	protected function getProceedingPhase(array $arrayStrings)
 	{
-		$title = $this->getProceedingTitle($project);
-		$description = $this->getProceedingDescription($project);
+		$proceeding_phases = ['oznámenie', 'rozhodnutie', 'odvolanie', 'odstránenie'];
+		$matched = false;
 
-		$proceeding_phases = ['oznámenie', 'rozhodnutie', 'odvolanie'];
-
-		$matched = null;
-
-		//search in title
 		foreach ($proceeding_phases as $phase){
-			if (!(stripos($title, $phase) === false)) {
-				$matched = $phase;
-				break;
-			}
-		}
-
-		//search in description if no match in title
-		if (!$matched) {
-			foreach ($proceeding_phases as $phase){
-				if (!(stripos($description, $phase) === false)) {
+			foreach ($arrayStrings as $string){
+				if (!(stripos($string, $phase) === false)) {
 					$matched = $phase;
-					break;
+					break 2;
 				}
 			}
 		}
 
 		return $matched ? $matched : 'nie je známa';
-	}
-
-	//find file in project and return it´s url (or null)
-	protected function getFileUrl($project)
-	{
-		return null;
-	}
-
-	protected function getFileCaption($project)
-	{
-		return null;
 	}
 }

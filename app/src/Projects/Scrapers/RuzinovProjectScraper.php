@@ -10,25 +10,41 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 {
 
 	protected $city_district = 'Ružinov';
-	protected $url = 'http://www.ruzinov.sk/sk/uradna-tabula/index/tag:stavebny-urad/status:active';
 
-	protected function getProjects()
+	protected function getAllProjects()
 	{
-		$html = new Htmldom($this->url);
-		$projects = $html->find('table.officeboard-doc-listing tr');
+		$projects = $this->web->find('table.officeboard-doc-listing tr');
 
 		return $projects;
 	}
 
-	protected function getConcrateProject($projectArea)
+	protected function getData($project)
 	{
-		$link = $projectArea->getElementByTagName('a')->getAttribute('href');
+		$detailsUrl = $project->getElementByTagName('a')->getAttribute('href');
+		$proceedingUrl = $this->domain . $detailsUrl;
+		$detailsHtml = new Htmldom($proceedingUrl);
+		$projectDetails = $detailsHtml->getElementById('main');
+		
+		if(!$this->isProjectNew($projectDetails)){
+			return false;
+		};
 
-		$html = new Htmldom($this->domain . $link);
-		$project = $html->getElementById('main');
+		$data ['proceedings'] = [
+			'title' => $this->getProceedingTitle($projectDetails),
+			'description' => $this->getProceedingDescription($projectDetails),
+			'file_reference' => $this->getProceedingFileReference($projectDetails),
+			'posted_at' => $this->getProceedingPostDate($projectDetails),
+			'droped_at' => $this->getProceedingDropDate($projectDetails),
+			'url' => $proceedingUrl,
+			'files' => [
+				'url' => $this->getFileUrl($projectDetails),
+				'caption' => $this->getFileCaption($projectDetails)
+			]
+		];
 
-		return $project;
+		return $data;
 	}
+
 
 	protected function isProjectNew($project)
 	{
@@ -61,6 +77,7 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 
 	protected function getProceedingFileReference($project)
 	{
+
 		return $project->getElementsByTagName('tr', 1)->find('td', 1)->plaintext;
 	}
 
@@ -91,8 +108,8 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 			$p = $row->find('td', 0)->plaintext;
 
 			if (stripos($p, 'Prílohy') !== false) {
-				$link =  $row->find('td', 1)->getElementByTagName('a')->getAttribute('href');
-				
+				$link = $row->find('td', 1)->getElementByTagName('a')->getAttribute('href');
+
 				return $this->domain . $link;
 			}
 		}
@@ -102,7 +119,7 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 
 	protected function getFileCaption($project)
 	{
-		
+
 		$rows = $fileRow = $project->getElementsByTagName('tr');
 
 		foreach ($rows as $row){
@@ -110,7 +127,7 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 
 			if (stripos($p, 'Prílohy') !== false) {
 				$caption = $row->find('td', 1)->getElementByTagName('a')->getAttribute('title');
-				
+
 				return $caption;
 			}
 		}

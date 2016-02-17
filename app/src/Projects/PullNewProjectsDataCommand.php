@@ -33,26 +33,9 @@ class PullNewProjectsDataCommand
 	{
 		$RuzinovProjects = $this->projectScraper->scrapeNew('Ružinov');
 		$StareMestoProjects = $this->projectScraper->scrapeNew('Staré Mesto');
+//		$PetrzalkaProjects = $this->projectScraper->scrapeNew('Petržalka');
+		$PetrzalkaProjects = $this->projectScraper->scrapeNew('Vrakuňa');
 		
-		$projects = array_merge($RuzinovProjects, $StareMestoProjects);
-
-		foreach ($projects as $project){
-			$project['city_district_id'] = CityDistrict::where('name', '=', $project['city_district'])->first()->id;
-			$project['proceeding']['proceeding_phase_id'] = ProceedingPhase::where('name', '=', $project['proceeding']['proceeding_phase'])->first()->id;
-			$project['proceeding']['proceeding_type_id'] = ProceedingType::where('name', '=', $project['proceeding']['proceeding_type'])->first()->id;
-			
-			$storedProject = $this->projectStorer->store($project);
-			$project['proceeding']['project_id'] = $storedProject->id;
-			$storedProceeding = $this->proceedingStorer->store($project['proceeding']);
-					
-			if($project['proceeding']['fileUrl'] !== null) {
-				$this->fileUploader->upload(
-					$project['proceeding']['fileUrl'],
-					$project['proceeding']['fileCaption'],
-					$storedProceeding->id); 
-			}
-		}		
-
 		return 'ok';
 	}
 }
