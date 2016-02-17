@@ -10,6 +10,8 @@ class Project extends Model
 		'title',
 		'description',
 		'aplicant',
+		'gps_lon',
+		'gps_lat',
 		'posted_at',
 		'droped_at',
 		'city_district_id'];
