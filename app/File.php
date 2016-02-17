@@ -13,5 +13,6 @@ class File extends Model
 		'caption',
 		'file_size',
 		'metadata',
+		'ocr_processed',
 		'proceeding_id'];
 }
