@@ -25,6 +25,7 @@ class CreateProceedingsTable extends Migration
 			$table->date('decided_at')->nullable()->default(null);
 			$table->date('posted_at')->nullable()->default(null);
 			$table->date('droped_at')->nullable()->default(null);
+			$table->string('url', 512)->collation('ascii_general_ci')->comment('URL to proceeding or Noticeboard');
 			$table->integer('project_id')->unsigned();
 			$table->integer('proceeding_type_id')->unsigned();
 			$table->integer('proceeding_phase_id')->unsigned();
