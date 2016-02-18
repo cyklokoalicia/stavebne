@@ -33,8 +33,9 @@ class PullNewProjectsDataCommand
 	{
 		$RuzinovProjects = $this->projectScraper->scrapeNew('Ružinov');
 		$StareMestoProjects = $this->projectScraper->scrapeNew('Staré Mesto');
-//		$PetrzalkaProjects = $this->projectScraper->scrapeNew('Petržalka');
-		$PetrzalkaProjects = $this->projectScraper->scrapeNew('Vrakuňa');
+//	$PetrzalkaProjects = $this->projectScraper->scrapeNew('Petržalka');
+		$VrakunaProjects = $this->projectScraper->scrapeNew('Vrakuňa');
+		$DubravkaProjects = $this->projectScraper->scrapeNew('Dúbravka');
 		
 		return 'ok';
 	}
