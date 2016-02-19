@@ -11,6 +11,7 @@ class File extends Model
 		'mime_type',
 		'file_extension',
 		'caption',
+		'url',
 		'file_size',
 		'metadata',
 		'ocr_processed',
