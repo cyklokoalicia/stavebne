@@ -27,6 +27,12 @@ class ProjectScraperStrategy
 			case 'Dúbravka':
 				$this->scraper = new Scrapers\DubravkaProjectScraper();
 				break;
+			case 'Rusovce':
+				$this->scraper = new Scrapers\RusovceProjectScraper();
+				break;
+			case 'Záhorská Bystrica':
+				$this->scraper = new Scrapers\ZahorskaBystricaProjectScraper();
+				break;
 			default:
 				break;
 		}
