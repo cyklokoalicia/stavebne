@@ -69,11 +69,7 @@ class VrakunaProjectScraper extends ProjectScraperAbstract
 		$newLine = "\r\n";
 
 		foreach ($content as $elem){
-			if ($elem->tag == 'p') {
-				$description .= $elem->innertext . $newLine;
-			} else {
-				$description .= $elem . $newLine;
-			}
+			$description .= $elem->plaintext . $newLine;
 		}
 		
 		return rtrim($description, $newLine);

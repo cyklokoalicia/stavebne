@@ -70,7 +70,7 @@ class DubravkaProjectScraper extends ProjectScraperAbstract
 
 		foreach ($content as $elem){
 			if ($elem->tag == 'p') {
-				$description .= $elem->innertext . $newLine;
+				$description .= $elem->plaintext . $newLine;
 			}
 		}
 

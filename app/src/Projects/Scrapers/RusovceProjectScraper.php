@@ -57,7 +57,7 @@ class RusovceProjectScraper extends ProjectScraperAbstract
 
 	protected function getProceedingDescription($project)
 	{
-		return $project->outertext;
+		return $this->getProceedingTitle($project);
 	}
 
 	protected function getFile($project)

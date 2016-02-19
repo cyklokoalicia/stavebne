@@ -96,7 +96,7 @@ class ZahorskaBystricaProjectScraper extends ProjectScraperAbstract
 
 	protected function getProceedingDescription($project)
 	{
-		return $project->find('td', 0)->innertext;
+		return $this->getProceedingTitle($project);
 	}
 
 	protected function getPostDate($project)
