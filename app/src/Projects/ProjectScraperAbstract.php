@@ -75,17 +75,19 @@ abstract class ProjectScraperAbstract
 		$this->domain = $this->getDomainName($url);
 		$this->web = $this->openWeb($url);
 
-		$projets = $this->getAllProjects();
+		$projects = $this->getAllProjects();
 
-		if (empty($projets)) {
+		if (empty($projects)) {
 			throw new \Monitor\src\Projects\EmptyProjectsException();
 		}
 
 		$newData = [];
 
-		$projets = array_reverse($projets);
+		//from old to new
+		$projects = array_reverse($projects);
 
-		foreach ($projets as $project){
+		foreach ($projects as $project){
+
 			$data = $this->getData($project);
 
 			if ($data == false || $data == null || empty($data)) {
@@ -131,12 +133,17 @@ abstract class ProjectScraperAbstract
 		$files = is_array(current($files)) ? $files : array($files);
 
 		foreach ($files as $file){
-			$headers = get_headers($file['url'], 1);
-			
+
+			$encodedUrl = urlencode($file['url']);
+			$encodedUrl = str_replace("%2F", "/", $encodedUrl);
+			$encodedUrl = str_replace("%3A", ":", $encodedUrl);
+
+			$headers = get_headers($encodedUrl, 1);
 			$info = pathinfo($file['url']);
-			
+
 			$file_data = [
 				'original_filename' => $info['basename'],
+				'url' => $encodedUrl,
 				'file_size' => $headers['Content-Length'],
 				'mime_type' => $headers['Content-Type'],
 				'file_extension' => $info['extension'],
@@ -147,7 +154,7 @@ abstract class ProjectScraperAbstract
 			$newFile = File::create($file_data);
 			$file_name = $newFile->id . '.' . $file_data['file_extension'];
 
-			$this->uploader->upload($file['url'], $file_name);
+			$this->uploader->upload($encodedUrl, $file_name);
 		}
 	}
 
