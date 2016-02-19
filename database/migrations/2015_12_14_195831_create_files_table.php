@@ -18,6 +18,7 @@ class CreateFilesTable extends Migration
             $table->string('mime_type');
 			$table->string('file_extension');
             $table->string('caption');
+			$table->string('url', 512)->collation('ascii_general_ci')->comment('URL to file');
             $table->integer('file_size')->unsigned()->comment('bytes');
 			$table->text('metadata')->nullable()->default(null);
 			$table->boolean('ocr_processed')->default(false)->comment('processed through OCR');
