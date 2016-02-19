@@ -9,6 +9,7 @@ return [
 		'Vrakuňa' => 'http://www.vrakuna.sk/kategoria/stavebny-urad/',
 		'Dúbravka' => 'http://www.dubravka.sk/sk/Miestny-urad/Elektronicka-uradna-tabula-oznamy/Uradna-tabula-Stavebny-urad.html',
 		'Rusovce' => 'http://www.bratislava-rusovce.sk/sk/uradna-tabula/oznamy-stavebneho-uradu/',
-		'Záhorská Bystrica' => 'http://www.zahorskabystrica.sk/?cat=100'
+		'Záhorská Bystrica' => 'http://www.zahorskabystrica.sk/?cat=100',
+		'Čunovo' => 'http://www.cunovo.eu/'
 	]
 ];

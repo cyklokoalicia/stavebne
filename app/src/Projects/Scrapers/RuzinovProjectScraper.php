@@ -29,7 +29,7 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 			return false;
 		};
 
-		$data ['proceedings'] = [
+		$data['proceedings'] = [
 			'title' => $this->getProceedingTitle($projectDetails),
 			'description' => $this->getProceedingDescription($projectDetails),
 			'file_reference' => $this->getProceedingFileReference($projectDetails),
@@ -41,7 +41,7 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 				'caption' => $this->getFileCaption($projectDetails)
 			]
 		];
-
+		
 		return $data;
 	}
 

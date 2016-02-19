@@ -109,6 +109,7 @@ abstract class ProjectScraperAbstract
 		$savedData = [];
 
 		$project = isset($data['project']) ? $data['project'] : array();
+			
 		$savedData['project'] = $project = $this->saveProject($project);
 
 		if (is_array(current($data['proceedings']))) {
@@ -121,7 +122,7 @@ abstract class ProjectScraperAbstract
 	}
 
 	protected function saveProject($project)
-	{
+	{	
 		$project['city_district_id'] = CityDistrict::where('name', '=', $this->city_district)->first()->id;
 		$project = $this->projectStorer->store($project);
 
