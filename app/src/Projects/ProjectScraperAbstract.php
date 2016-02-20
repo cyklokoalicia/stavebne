@@ -42,7 +42,7 @@ abstract class ProjectScraperAbstract
 
 	protected function setUrl()
 	{
-		$this->url = $this->url ? $this->url : config('monitor.url.' . $this->city_district);
+		$this->url = config('monitor.url.' . $this->city_district);
 
 		return $this->url;
 	}
@@ -53,9 +53,25 @@ abstract class ProjectScraperAbstract
 		return parse_url($url, PHP_URL_SCHEME) . '://' . parse_url($url, PHP_URL_HOST);
 	}
 
+	protected function existUrl($url)
+	{
+		$handler = curl_init($url);
+		curl_setopt($handler, CURLOPT_RETURNTRANSFER, TRUE);
+		$resp = curl_exec($handler);
+		$httpStatus = curl_getinfo($handler, CURLINFO_HTTP_CODE);
+
+		return $httpStatus < 400 ? true : false;
+	}
+
 	protected function openWeb($url)
 	{
-		return new Htmldom($url);
+		if(!$this->existUrl($url)){
+			return false;
+		};
+		
+		$htmlDom = new Htmldom($url);
+
+		return $htmlDom;
 	}
 
 	protected function trimData($data)
@@ -71,9 +87,9 @@ abstract class ProjectScraperAbstract
 	public function scrape()
 	{
 		$this->setObjects();
-		$url = $this->setUrl();
-		$this->domain = $this->getDomainName($url);
-		$this->web = $this->openWeb($url);
+		$this->setUrl();
+		$this->domain = $this->getDomainName($this->url);
+		$this->web = $this->openWeb($this->url);
 
 		$projects = $this->getAllProjects();
 
@@ -109,7 +125,7 @@ abstract class ProjectScraperAbstract
 		$savedData = [];
 
 		$project = isset($data['project']) ? $data['project'] : array();
-			
+
 		$savedData['project'] = $project = $this->saveProject($project);
 
 		if (is_array(current($data['proceedings']))) {
@@ -122,7 +138,7 @@ abstract class ProjectScraperAbstract
 	}
 
 	protected function saveProject($project)
-	{	
+	{
 		$project['city_district_id'] = CityDistrict::where('name', '=', $this->city_district)->first()->id;
 		$project = $this->projectStorer->store($project);
 
@@ -162,7 +178,7 @@ abstract class ProjectScraperAbstract
 	protected function saveProceeding($project_id, $proceeding)
 	{
 		$stringsArray = [];
-
+		
 		$proceeding['project_id'] = $project_id;
 
 		if (isset($proceeding['title'])) {
@@ -183,14 +199,13 @@ abstract class ProjectScraperAbstract
 			$proceedingPhase = $this->getProceedingPhase($stringsArray);
 			$proceeding['proceeding_phase_id'] = ProceedingPhase::where('name', '=', $proceedingPhase)->first()->id;
 		}
-
+				
 		$newProceeding = $this->proceedingStorer->store($proceeding);
-
+		
 		if (isset($proceeding['files'])) {
 			$this->saveFiles($newProceeding->id, $proceeding['files']);
 		}
-
-
+		
 		return $newProceeding;
 	}
 
