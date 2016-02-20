@@ -41,10 +41,11 @@ class RusovceProjectScraper extends ProjectScraperAbstract
 	protected function isProjectNew($project)
 	{
 		$proceedingTitle = $this->getProceedingTitle($project);
+		$proceedingDescription= $this->getProceedingDescription($project);
 
-		$proceeding = Project::whereHas('proceedings', function($q) use ($proceedingTitle)
+		$proceeding = Project::whereHas('proceedings', function($q) use ($proceedingTitle, $proceedingDescription)
 			{
-				$q->where('title', '=', $proceedingTitle);
+				$q->where('title', '=', $proceedingTitle)->where('description', '=', $proceedingDescription);
 			})->get()->count();
 
 		return $proceeding ? false : true;
