@@ -6,7 +6,6 @@ use Monitor\Proceeding;
 
 class ProceedingStoreCommand
 {
-
 	public function store($data)
 	{
 		return Proceeding::create($data);
