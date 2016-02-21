@@ -52,7 +52,8 @@ class ZahorskaBystricaProjectScraper extends ProjectScraperAbstract
 		$expressions = [
 			'kolaud',
 			'staveb',
-			'územn'
+			'územn',
+			'dialnic'
 		];
 
 		foreach ($expressions as $expression){
@@ -65,7 +66,6 @@ class ZahorskaBystricaProjectScraper extends ProjectScraperAbstract
 			['stavb', 'oznám'],
 			['stavb', 'rozhod'],
 			['stavb', 'zmena'],
-			['stavb', 'dialnic'],
 			['stavb', 'povolen']
 		];
 
