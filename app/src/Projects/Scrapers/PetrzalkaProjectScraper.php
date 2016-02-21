@@ -5,123 +5,143 @@ namespace Monitor\src\Projects\Scrapers;
 use Monitor\src\Projects\ProjectScraperAbstract;
 use Monitor\Project;
 use Htmldom;
+use Log;
 
 class PetrzalkaProjectScraper extends ProjectScraperAbstract
 {
 
 	protected $city_district = 'Petržalka';
-	protected $url = 'http://www.petrzalka.sk/uzemne-a-stavebne-konania/';
+	//only for Petrzalka
+	protected $data = array();
 
-	public function scrapeNew()
+	protected function getAllProjects()
 	{
-		$this->domain = $this->getDomainName($this->url);
-		$projects = $this->getProjects();
-		
-		$data = [];
-
-		foreach ($projects as $projectArea){
-
-			$project = $this->getConcrateProject($projectArea);
-
-			if (!$this->isProjectNew($project)) {
-				continue;
-			}
-			
-					
-		dd(getAplicant);
-			
-			$rows = $project->getElementByTagName('table')->find('tr');
-
-			foreach ($rows as $row){
-				$h = $row->find('th', 1)->plaintext;
-
-				switch ($h) {
-					case 'Žiadosť o územné rozhodnutie podaná':
-						break;
-
-					default:
-						break;
-				}
-			}
-
-
-			$title = $this->getProceedingTitle($project);
-			$description = $this->getProceedingDescription($project);
-
-			$proceeding_types = [
-				'územné konanie' => [
-					'Žiadosť o územné rozhodnutie podaná',
-					'Územné rozhodnutie vydané'
-				],
-				'kolaudačné konanie' => [
-					'Žiadosť o stavebné povolenie podaná',
-					'Stavebné povolenie vydané'
-				],
-				'stavebné konanie' => 'Kolaudačné rozhodnutie',
-			];
-
-			$matched = null;
-
-			//search in title
-			foreach ($proceeding_types as $proceeding => $expression){
-				if (!(stripos($title, $expression) === false)) {
-					$matched = $proceeding;
-					break;
-				}
-			}
-
-			foreach ($data as $key => $value){
-				
-			}
-
-
-			$data[] = [
-				'title' => $this->getTitle($project),
-				'description' => $this->getDescription($project),
-				'aplicant' => $this->getAplicant($project),
-				'posted_at' => $this->getPosteDate($project),
-				'droped_at' => $this->getDropeDate($project),
-				'city_district' => $this->city_district,
-				'proceeding' => [
-					'title' => $this->getProceedingTitle($project),
-					'description' => $this->getProceedingDescription($project),
-					'file_reference' => $this->getProceedingFileReference($project),
-					'aplicant' => $this->getProceedingAplicant($project),
-					'building_change' => $this->isBuildingChange($project),
-					'notified_at' => $this->getProceedingNotificationDate($project),
-					'decided_at' => $this->getProceedingDecisionDate($project),
-					'posted_at' => $this->getProceedingPostDate($project),
-					'droped_at' => $this->getProceedingDropDate($project),
-					'proceeding_type' => $this->getProceedingType($project),
-					'proceeding_phase' => $this->getProceedingPhase($project),
-					'fileUrl' => $this->getFileUrl($project),
-					'fileCaption' => $this->getFileCaption($project),
-				]
-			];
-		}
-
-		//change order from oldest projects
-		$reversed_data = array_reverse($data);
-
-		return $this->trimData($reversed_data);
-	}
-
-	protected function getProjects()
-	{
-		$html = new Htmldom($this->url);
-		$projects = $html->find('.content_body h3');
+		$projects = $this->web->find('.content_body h3');
 
 		return $projects;
 	}
 
-	protected function getConcrateProject($project)
+	public function getData($project)
 	{
-		$link = $project->getElementByTagName('a')->getAttribute('href');
+		$detailAnchor = $project->getElementByTagName('a');
+		$detailsUrl = $detailAnchor->getAttribute('href');
+		$projectDetails = $this->getProjectDetails($detailsUrl);
 
-		$html = new Htmldom($link);
-		$project = $html->getElementById('content');
+		$data['project'] = [
+			'title' => $detailAnchor->plaintext
+		];
 
-		return $project;
+//		if (!$this->isProjectNew($project)) {
+//			continue;
+//		}
+
+		$rows = $projectDetails->getElementByTagName('table')->find('tr');
+
+		$proceeding_info_types = [
+			'Žiadateľ o územné rozhodnutie',
+			'Žiadosť o územné rozhodnutie podaná',
+			'Územné rozhodnutie vydané',
+			'Žiadosť o stavebné povolenie podaná',
+			'Stavebné povolenie vydané',
+			'Kolaudačné rozhodnutie'
+		];
+
+		$i = 0;
+		$proceedings = [];
+		$lastType = '';
+
+		//rows
+		foreach ($rows as $row){
+
+			if ($th = $row->find('th', 0)) {
+				$th = $th->plaintext;
+			}
+
+			if ($tr = $row->find('td', 0)) {
+				$tr = $tr->plaintext;
+			}
+
+			if (empty(trim($tr))) {
+				continue;
+			}
+
+			if (isset($th)) {
+				$th = trim($th);
+				$type_id = array_search($th, $proceeding_info_types);
+				$type = $proceeding_info_types[$type_id];
+				$lastType = $type;
+
+				$proceedings[$type][] = $tr;
+			} else {
+				$proceedings[$lastType][] = $tr;
+			}
+		}
+
+		$data['proceedings'] = $this->getTerritorialProceeding($proceedings);
+
+		dd($data);
+		return $data;
+	}
+
+	public function getTerritorialProceeding($proceedings)
+	{
+		$type = 'úzmené konanie';
+		$proceedingData = [];
+
+		if (array_key_exists('Žiadateľ o územné rozhodnutie', $proceedings)) {
+			$i = 0;
+			foreach ($proceedings['Žiadateľ o územné rozhodnutie'] as $app){
+				$proceedingData[$i]['applicant'] = $app;
+				$i++;
+			}
+		}
+		
+		if ( array_key_exists('Žiadosť o územné rozhodnutie podaná', $proceedings)) {
+			$i = 0;
+			foreach ($proceedings['Žiadosť o územné rozhodnutie podaná'] as $notified){
+				preg_match("/(\d{1,2})\s?\.\s?(\d{1,2})\s?\.\s?(\d{4})/", $notified, $matches);
+				$date = $matches[1]. '.' . $matches[2] . '.' . $matches[3];
+				
+				$proceedingData[$i]['notified_at'] = \DateTime::createFromFormat('d.m.Y', $date)->format('Y-m-d');
+				$i++;
+			}
+		}
+		
+		if ( array_key_exists('Územné rozhodnutie vydané', $proceedings)) {
+			$i = 0;
+			foreach ($proceedings['Územné rozhodnutie vydané'] as $decided_at){
+				preg_match("/(\d{1,2})\s?\.\s?(\d{1,2})\s?\.\s?(\d{4})/", $decided_at, $matches);
+				$date = $matches[1]. '.' . $matches[2] . '.' . $matches[3];
+				
+				$proceedingData[$i]['decided_at'] = \DateTime::createFromFormat('d.m.Y', $date)->format('Y-m-d');
+								
+				if(preg_match("/([\p{L}0-9]+[-]?[\p{L}0-9]+)+(\/([\p{L}0-9]*[-]?[\p{L}0-9]+)+)+/u", $decided_at, $matches)){
+						$proceedingData[$i]['file_reference'] = $matches[0];
+				}
+				
+				$i++;
+			}
+		}
+		
+		// add to proceeding types to all proceedings
+		array_walk ($proceedingData, function(&$a) use ($type) {
+			return $a['proceeding_type'] = $type;
+		});
+		
+		return $proceedingData;
+	}
+
+	protected function getBuildingProceeding($proceedings)
+	{
+		
+	}
+
+	protected function getProjectDetails($detailsUrl)
+	{
+		$detailsHtml = new Htmldom($detailsUrl);
+		$projectDetails = $detailsHtml->getElementById('content');
+
+		return $projectDetails;
 	}
 
 	protected function isProjectNew($project)
@@ -138,9 +158,19 @@ class PetrzalkaProjectScraper extends ProjectScraperAbstract
 		return $proceeding ? false : true;
 	}
 
+	protected function getTitle($project)
+	{
+		return $project->find('.entry p em', 1)->plaintext;
+	}
+
+	protected function getDescription($project)
+	{
+		return $project->getElementsByTagName('tr', 2)->find('td', 1)->plaintext;
+	}
+
 	protected function getAplicant($project)
 	{
-		return $project->find('.table_big_content')->find('tr', 1)->find('td', 1)plaintext;
+		return $project->find('.table_big_content')->find('tr', 1)->find('td', 1)->plaintext;
 	}
 
 	protected function getProceedingAplicant($project)
@@ -148,13 +178,8 @@ class PetrzalkaProjectScraper extends ProjectScraperAbstract
 		$this->getAplicant($project);
 	}
 
-	protected function getProceedingTitle($project)
-	{
-		return $project->find('.entry p em', 1)->plaintext;
-	}
-
 	protected function getProceedingDescription($project)
 	{
-		return $project->getElementsByTagName('tr', 2)->find('td', 1)->plaintext;
+		return $this->getDescription($project);
 	}
 }

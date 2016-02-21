@@ -64,7 +64,9 @@ class ZahorskaBystricaProjectScraper extends ProjectScraperAbstract
 		$doubleExpressions = [
 			['stavb', 'oznám'],
 			['stavb', 'rozhod'],
-			['stavb', 'zmena']
+			['stavb', 'zmena'],
+			['stavb', 'dialnic'],
+			['stavb', 'povolen']
 		];
 
 		foreach ($doubleExpressions as $expression){
