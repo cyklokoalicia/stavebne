@@ -65,10 +65,10 @@ abstract class ProjectScraperAbstract
 
 	protected function openWeb($url)
 	{
-		if(!$this->existUrl($url)){
+		if (!$this->existUrl($url)) {
 			return false;
 		};
-		
+
 		$htmlDom = new Htmldom($url);
 
 		return $htmlDom;
@@ -145,24 +145,41 @@ abstract class ProjectScraperAbstract
 		return $project;
 	}
 
+	protected function getCurlInfo($url)
+	{
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HEADER, true);
+		curl_setopt($ch, CURLOPT_NOBODY, true);
+		curl_exec($ch);
+
+		return curl_getinfo($ch);
+	}
+
 	protected function saveFiles($proceeding_id, $files)
 	{
+		if (empty($files)) {
+			return null;
+		}
+
 		$files = is_array(current($files)) ? $files : array($files);
 
 		foreach ($files as $file){
-
-			$encodedUrl = urlencode($file['url']);
+			$encodedUrl = urldecode($file['url']);
+			$encodedUrl = rawurlencode($encodedUrl);
 			$encodedUrl = str_replace("%2F", "/", $encodedUrl);
 			$encodedUrl = str_replace("%3A", ":", $encodedUrl);
 
-			$headers = get_headers($encodedUrl, 1);
+			$curlInfo = $this->getCurlInfo($encodedUrl);
 			$info = pathinfo($file['url']);
 
 			$file_data = [
 				'original_filename' => $info['basename'],
 				'url' => $encodedUrl,
-				'file_size' => $headers['Content-Length'],
-				'mime_type' => $headers['Content-Type'],
+				'file_size' => $curlInfo['download_content_length'],
+				'mime_type' => $curlInfo['content_type'],
 				'file_extension' => $info['extension'],
 				'proceeding_id' => $proceeding_id
 			];
@@ -178,7 +195,7 @@ abstract class ProjectScraperAbstract
 	protected function saveProceeding($project_id, $proceeding)
 	{
 		$stringsArray = [];
-		
+
 		$proceeding['project_id'] = $project_id;
 
 		if (isset($proceeding['title'])) {
@@ -199,13 +216,13 @@ abstract class ProjectScraperAbstract
 			$proceedingPhase = $this->getProceedingPhase($stringsArray);
 			$proceeding['proceeding_phase_id'] = ProceedingPhase::where('name', '=', $proceedingPhase)->first()->id;
 		}
-				
+
 		$newProceeding = $this->proceedingStorer->store($proceeding);
-		
+
 		if (isset($proceeding['files'])) {
 			$this->saveFiles($newProceeding->id, $proceeding['files']);
 		}
-		
+
 		return $newProceeding;
 	}
 
