@@ -66,14 +66,14 @@ class VajnoryProjectScraper extends ProjectScraperAbstract
 		}
 
 		$doubleExpressions = [
-			['stavb', 'oznám'],
-			['stavb', 'rozhod'],
-			['stavb', 'zmena'],
-			['stavb', 'povolen']
+			['stav', 'oznám'],
+			['stav', 'rozhod'],
+			['stav', 'zmena'],
+			['stav', 'povolen']
 		];
-
+		
 		foreach ($doubleExpressions as $expression){
-			if ((!(stripos($text, $expression[0])) === false) && (!(stripos($text, $expression[1])) === false)) {
+			if ((stripos($text, $expression[0]) !== false) && (stripos($text, $expression[1]) !== false)) {
 				return true;
 			}
 		}
@@ -84,13 +84,12 @@ class VajnoryProjectScraper extends ProjectScraperAbstract
 	protected function isProjectNew($project)
 	{
 		$proceedingTitle = $this->getProceedingTitle($project);
-		
-		$city_district_id = CityDistrict::where('name', '=', $this->city_district)->first()->id;
 
-		$proceeding = Project::where('city_district_id', '=', $city_district_id)->whereHas('proceedings', function($q) use ($proceedingTitle)
-			{
-				$q->where('title', '=', $proceedingTitle);
-			})->get()->count();
+		$proceeding = Project::where('city_district_id', '=', $this->cityDisctrictId)
+				->whereHas('proceedings', function($q) use ($proceedingTitle)
+				{
+					$q->where('title', '=', $proceedingTitle);
+				})->get()->count();
 
 		return $proceeding ? false : true;
 	}

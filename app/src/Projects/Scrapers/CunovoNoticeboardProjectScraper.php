@@ -71,14 +71,14 @@ class CunovoNoticeboardProjectScraper extends ProjectScraperAbstract
 		}
 
 		$doubleExpressions = [
-			['stavb', 'oznám'],
-			['stavb', 'rozhod'],
-			['stavb', 'zmena'],
-			['stavb', 'povolen']
+			['stav', 'oznám'],
+			['stav', 'rozhod'],
+			['stav', 'zmena'],
+			['stav', 'povolen']
 		];
-
+		
 		foreach ($doubleExpressions as $expression){
-			if ((!(stripos($text, $expression[0])) === false) && (!(stripos($text, $expression[1])) === false)) {
+			if ((stripos($text, $expression[0]) !== false) && (stripos($text, $expression[1]) !== false)) {
 				return true;
 			}
 		}
