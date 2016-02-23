@@ -169,7 +169,8 @@ class Htmldom
 
 	// load html from file
 	public function load_file($args)
-	{
+	{		
+		//OWN CURL SCRIPT (REPLACE file_get_contents)
 		$args = func_get_args();
 		$ua = 'Mozilla/5.0 (Windows NT 5.1; rv:16.0) Gecko/20100101 Firefox/16.0 (ROBOT)';
 		$cookiefile = "cookiefile";
