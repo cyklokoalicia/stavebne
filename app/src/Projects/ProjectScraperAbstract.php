@@ -16,6 +16,7 @@ abstract class ProjectScraperAbstract
 
 	//you have to set city district name	
 	protected $city_district;
+	protected $city_district_id;
 	//acces to web html
 	public $web;
 	//set url or get from config file using city district name
@@ -47,6 +48,11 @@ abstract class ProjectScraperAbstract
 		return $this->url;
 	}
 
+	protected function setCityDistrictId()
+	{
+		return $this->city_district_id = CityDistrict::where('name', '=', $this->city_district)->first()->id;
+	}
+
 	//get domain name with scheme
 	protected function getDomainName($url)
 	{
@@ -68,9 +74,9 @@ abstract class ProjectScraperAbstract
 		if (!$this->existUrl($url)) {
 			return false;
 		};
-
+		
 		$htmlDom = new Htmldom($url);
-
+				
 		return $htmlDom;
 	}
 
@@ -88,13 +94,14 @@ abstract class ProjectScraperAbstract
 	{
 		$this->setObjects();
 		$this->setUrl();
+		$this->setCityDistrictId();
 		$this->domain = $this->getDomainName($this->url);
 		$this->web = $this->openWeb($this->url);
 
 		$projects = $this->getAllProjects();
-
+		
 		if (empty($projects)) {
-			throw new \Monitor\src\Projects\EmptyProjectsException();
+			throw new \Monitor\src\Projects\EmptyProjectsException('On web->' . $this->web .' for city district ' . $city_district);
 		}
 
 		$newData = [];
@@ -105,7 +112,7 @@ abstract class ProjectScraperAbstract
 		foreach ($projects as $project){
 
 			$data = $this->getData($project);
-
+			
 			if ($data == false || $data == null || empty($data)) {
 				continue;
 			}
@@ -139,7 +146,7 @@ abstract class ProjectScraperAbstract
 
 	protected function saveProject($project)
 	{
-		$project['city_district_id'] = CityDistrict::where('name', '=', $this->city_district)->first()->id;
+		$project['city_district_id'] = $this->city_district_id;
 		$project = $this->projectStorer->store($project);
 
 		return $project;
@@ -171,6 +178,10 @@ abstract class ProjectScraperAbstract
 			$encodedUrl = rawurlencode($encodedUrl);
 			$encodedUrl = str_replace("%2F", "/", $encodedUrl);
 			$encodedUrl = str_replace("%3A", ":", $encodedUrl);
+
+			if (!$this->existUrl($encodedUrl)) {
+				continue;
+			}
 
 			$curlInfo = $this->getCurlInfo($encodedUrl);
 			$info = pathinfo($file['url']);
@@ -205,7 +216,7 @@ abstract class ProjectScraperAbstract
 		if (isset($proceeding['description'])) {
 			$stringsArray[] = $proceeding['description'];
 		}
-
+		
 		if (!isset($proceeding['proceeding_type'])) {
 			$proceedingType = $this->getProceedingType($stringsArray);
 			$proceeding['proceeding_type_id'] = ProceedingType::where('name', '=', $proceedingType)->first()->id;
@@ -216,7 +227,7 @@ abstract class ProjectScraperAbstract
 			$proceedingPhase = $this->getProceedingPhase($stringsArray);
 			$proceeding['proceeding_phase_id'] = ProceedingPhase::where('name', '=', $proceedingPhase)->first()->id;
 		}
-
+		
 		$newProceeding = $this->proceedingStorer->store($proceeding);
 
 		if (isset($proceeding['files'])) {
@@ -233,7 +244,7 @@ abstract class ProjectScraperAbstract
 
 		if ($proceedingType == 'stavebné konanie') {
 			foreach ($arrayStrings as $string){
-				if (!(stripos($string, 'zmen') === false)) {
+				if (stripos($string, 'zmen') !== false) {
 					$change = true;
 
 					break;
@@ -257,7 +268,7 @@ abstract class ProjectScraperAbstract
 
 		foreach ($proceeding_types as $proceeding => $expression){
 			foreach ($arrayStrings as $string){
-				if (!(stripos($string, $expression) === false)) {
+				if (stripos($string, $expression) !== false) {
 					$matched = $proceeding;
 					break 2;
 				}
@@ -270,15 +281,30 @@ abstract class ProjectScraperAbstract
 	//search proceeding phase in all given strings ( e.g. title, description)
 	protected function getProceedingPhase(array $arrayStrings)
 	{
-		$proceeding_phases = ['oznámenie', 'rozhodnutie', 'odvolanie', 'odstránenie'];
+		$proceeding_phases = [
+			'oznámenie' => 'oznámenie',
+			'ohlásenie' => 'oznámenie',
+			'rozhodnutie' => 'rozhodnutie',
+			'povolenie' => 'rozhodnutie',
+			'odvolani' => 'odvolanie',
+			'odstránenie' => 'odstránenie'
+		];
+
 		$matched = false;
 
-		foreach ($proceeding_phases as $phase){
+		foreach ($proceeding_phases as $val => $phase){
 			foreach ($arrayStrings as $string){
-				if (!(stripos($string, $phase) === false)) {
+				if (stripos($string, $val) !== false) {
 					$matched = $phase;
 					break 2;
 				}
+			}
+		}
+
+		foreach ($arrayStrings as $string){
+			if ((stripos($string, 'verejn') !== false) && (stripos($string, 'vyhláš') !== false)) {
+				$matched = 'oznámenie';
+				break;
 			}
 		}
 
