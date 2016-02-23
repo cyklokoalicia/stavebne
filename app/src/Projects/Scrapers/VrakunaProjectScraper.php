@@ -39,7 +39,7 @@ class VrakunaProjectScraper extends ProjectScraperAbstract
 		if ($files = $this->getFiles($projectDetails)) {
 			$data ['proceedings']['files'] = $files;
 		}
-		
+
 		return $data;
 	}
 
@@ -48,10 +48,11 @@ class VrakunaProjectScraper extends ProjectScraperAbstract
 		$proceedingPostDate = $this->getProceedingPostDate($project);
 		$proceedingTitle = $this->getProceedingTitle($project);
 
-		$proceeding = Project::whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingTitle)
-			{
-				$q->where('posted_at', '=', $proceedingPostDate)->where('title', '=', $proceedingTitle);
-			})->get()->count();
+		$proceeding = Project::where('city_district_id', '=', $this->city_district_id)
+				->whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingTitle)
+				{
+					$q->where('posted_at', '=', $proceedingPostDate)->where('title', '=', $proceedingTitle);
+				})->get()->count();
 
 		return $proceeding ? false : true;
 	}
@@ -71,7 +72,7 @@ class VrakunaProjectScraper extends ProjectScraperAbstract
 		foreach ($content as $elem){
 			$description .= $elem->plaintext . $newLine;
 		}
-		
+
 		return rtrim($description, $newLine);
 	}
 
@@ -113,7 +114,7 @@ class VrakunaProjectScraper extends ProjectScraperAbstract
 				];
 			}
 		}
-		
+
 		if ($attachmants = $project->find('.post-content a')) {
 			foreach ($attachmants as $attachmant){
 				//detect file
@@ -124,7 +125,7 @@ class VrakunaProjectScraper extends ProjectScraperAbstract
 				}
 			}
 		}
-		
+
 		return $files ? $files : null;
 	}
 }

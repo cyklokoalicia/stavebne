@@ -26,22 +26,22 @@ class CunovoNoticeboardProjectScraper extends ProjectScraperAbstract
 	protected function getData($project)
 	{
 		$proceedingUrl = $project->find('.button', 0)->getAttribute('href');
-		
-		if(!$this->existUrl($proceedingUrl)){
+
+		if (!$this->existUrl($proceedingUrl)) {
 			return false;
 		};
-		
+
 		$detailsHtml = new Htmldom($proceedingUrl);
 		$proceedingsDetails = $detailsHtml->getElementById('content');
-		
-		if(!$this->isBuildingInfo($proceedingsDetails)) {
+
+		if (!$this->isBuildingInfo($proceedingsDetails)) {
 			return false;
 		}
-		
+
 		if (!$this->isProjectNew($proceedingsDetails)) {
 			return false;
 		};
-		
+
 		$data['proceedings'] = [
 			'title' => $this->getProceedingTitle($proceedingsDetails),
 			'description' => $this->getProceedingDescription($proceedingsDetails),
@@ -49,10 +49,10 @@ class CunovoNoticeboardProjectScraper extends ProjectScraperAbstract
 			'url' => $proceedingUrl,
 			'files' => $this->getFiles($proceedingsDetails)
 		];
-		
+
 		return $data;
 	}
-	
+
 	protected function isBuildingInfo($project)
 	{
 		$text = $this->getProceedingTitle($project) . ' ' . $this->getProceedingDescription($project);
@@ -76,7 +76,7 @@ class CunovoNoticeboardProjectScraper extends ProjectScraperAbstract
 			['stav', 'zmena'],
 			['stav', 'povolen']
 		];
-		
+
 		foreach ($doubleExpressions as $expression){
 			if ((stripos($text, $expression[0]) !== false) && (stripos($text, $expression[1]) !== false)) {
 				return true;
@@ -91,10 +91,11 @@ class CunovoNoticeboardProjectScraper extends ProjectScraperAbstract
 		$proceedingPostDate = $this->getProceedingPostDate($project);
 		$proceedingTitle = $this->getProceedingTitle($project);
 
-		$proceeding = Project::whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingTitle)
-			{
-				$q->where('posted_at', '=', $proceedingPostDate)->where('title', '=', $proceedingTitle);
-			})->get()->count();
+		$proceeding = Project::where('city_district_id', '=', $this->city_district_id)
+				->whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingTitle)
+				{
+					$q->where('posted_at', '=', $proceedingPostDate)->where('title', '=', $proceedingTitle);
+				})->get()->count();
 
 		return $proceeding ? false : true;
 	}
@@ -106,7 +107,7 @@ class CunovoNoticeboardProjectScraper extends ProjectScraperAbstract
 
 	protected function getProceedingDescription($project)
 	{
-		$postContent = $project->find('.post-content',0)->children;
+		$postContent = $project->find('.post-content', 0)->children;
 
 		$description = '';
 		$newLine = "\n\r";

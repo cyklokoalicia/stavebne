@@ -83,10 +83,11 @@ class ZahorskaBystricaProjectScraper extends ProjectScraperAbstract
 		$proceedingPostDate = $this->getPostDate($project);
 		$proceedingTitle = $this->getProceedingTitle($project);
 
-		$proceeding = Project::whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingTitle)
-			{
-				$q->where('posted_at', '=', $proceedingPostDate)->where('title', '=', $proceedingTitle);
-			})->get()->count();
+		$proceeding = Project::where('city_district_id', '=', $this->city_district_id)
+				->whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingTitle)
+				{
+					$q->where('posted_at', '=', $proceedingPostDate)->where('title', '=', $proceedingTitle);
+				})->get()->count();
 
 		return $proceeding ? false : true;
 	}

@@ -22,10 +22,10 @@ class StareMestoProjectScraper extends ProjectScraperAbstract
 	{
 		$detailsUrl = $project->getElementByTagName('a')->getAttribute('href');
 		$proceedingUrl = $this->domain . $detailsUrl;
-				
+
 		$detailsHtml = new Htmldom($proceedingUrl);
 		$projectDetails = $detailsHtml->find('.main-content .content-text', 0);
-		
+
 		if (!$this->isProjectNew($detailsHtml)) {
 			return false;
 		};
@@ -51,11 +51,12 @@ class StareMestoProjectScraper extends ProjectScraperAbstract
 		$proceedingFileReference = $this->getProceedingFileReference($project);
 		$proceedingPostDate = $this->getProceedingPostDate($project);
 
-		$proceeding = Project::whereHas('proceedings', function($q) use ( $proceedingFileReference, $proceedingPostDate)
-			{
-				$q->where('posted_at', '=', $proceedingPostDate)->where('file_reference', '=', $proceedingFileReference);
-			})->get()->count();
-			
+		$proceeding = Project::where('city_district_id', '=', $this->city_district_id)
+				->whereHas('proceedings', function($q) use ( $proceedingFileReference, $proceedingPostDate)
+				{
+					$q->where('posted_at', '=', $proceedingPostDate)->where('file_reference', '=', $proceedingFileReference);
+				})->get()->count();
+
 		return $proceeding ? false : true;
 	}
 
@@ -71,9 +72,9 @@ class StareMestoProjectScraper extends ProjectScraperAbstract
 		if (stripos($p, 'Popis') === false) {
 			return null;
 		}
-		
+
 		$description = $project->getElementsByTagName('tr', 3)->find('td', 1)->plaintext;
-		
+
 		return trim(trim($description), '"');
 	}
 

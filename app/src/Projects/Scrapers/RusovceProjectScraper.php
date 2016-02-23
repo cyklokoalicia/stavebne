@@ -19,15 +19,15 @@ class RusovceProjectScraper extends ProjectScraperAbstract
 	}
 
 	protected function getData($project)
-	{			
-		if(!$project->plaintext){
+	{
+		if (!$project->plaintext) {
 			return false;
 		}
-		
+
 		if (!$this->isProjectNew($project)) {
 			return false;
 		}
-		
+
 		$data ['proceedings'] = [
 			'title' => $this->getProceedingTitle($project),
 			'description' => $this->getProceedingDescription($project),
@@ -41,12 +41,13 @@ class RusovceProjectScraper extends ProjectScraperAbstract
 	protected function isProjectNew($project)
 	{
 		$proceedingTitle = $this->getProceedingTitle($project);
-		$proceedingDescription= $this->getProceedingDescription($project);
+		$proceedingDescription = $this->getProceedingDescription($project);
 
-		$proceeding = Project::whereHas('proceedings', function($q) use ($proceedingTitle, $proceedingDescription)
-			{
-				$q->where('title', '=', $proceedingTitle)->where('description', '=', $proceedingDescription);
-			})->get()->count();
+		$proceeding = Project::where('city_district_id', '=', $this->city_district_id)
+				->whereHas('proceedings', function($q) use ($proceedingTitle, $proceedingDescription)
+				{
+					$q->where('title', '=', $proceedingTitle)->where('description', '=', $proceedingDescription);
+				})->get()->count();
 
 		return $proceeding ? false : true;
 	}

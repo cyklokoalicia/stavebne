@@ -24,8 +24,8 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 		$proceedingUrl = $this->domain . $detailsUrl;
 		$detailsHtml = new Htmldom($proceedingUrl);
 		$projectDetails = $detailsHtml->getElementById('main');
-		
-		if(!$this->isProjectNew($projectDetails)){
+
+		if (!$this->isProjectNew($projectDetails)) {
 			return false;
 		};
 
@@ -41,20 +41,20 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 				'caption' => $this->getFileCaption($projectDetails)
 			]
 		];
-		
+
 		return $data;
 	}
-
 
 	protected function isProjectNew($project)
 	{
 		$proceedingPostDate = $this->getProceedingPostDate($project);
 		$proceedingFileReference = $this->getProceedingFileReference($project);
 
-		$proceeding = Project::whereHas('proceedings', function($q) use ($proceedingFileReference, $proceedingPostDate)
-			{
-				$q->where('posted_at', '=', $proceedingPostDate)->where('file_reference', '=', $proceedingFileReference);
-			})->get()->count();
+		$proceeding = Project::where('city_district_id', '=', $this->city_district_id)
+				->whereHas('proceedings', function($q) use ($proceedingFileReference, $proceedingPostDate)
+				{
+					$q->where('posted_at', '=', $proceedingPostDate)->where('file_reference', '=', $proceedingFileReference);
+				})->get()->count();
 
 		return $proceeding ? false : true;
 	}

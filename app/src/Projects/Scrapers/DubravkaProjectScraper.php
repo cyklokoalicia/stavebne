@@ -8,6 +8,7 @@ use Htmldom;
 
 class DubravkaProjectScraper extends ProjectScraperAbstract
 {
+
 	protected $city_district = 'Dúbravka';
 
 	protected function getAllProjects()
@@ -48,10 +49,11 @@ class DubravkaProjectScraper extends ProjectScraperAbstract
 		$proceedingPostDate = $this->getDates($project)[0];
 		$proceedingTitle = $this->getProceedingTitle($project);
 
-		$proceeding = Project::whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingTitle)
-			{
-				$q->where('posted_at', '=', $proceedingPostDate)->where('title', '=', $proceedingTitle);
-			})->get()->count();
+		$proceeding = Project::where('city_district_id', '=', $this->city_district_id)
+				->whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingTitle)
+				{
+					$q->where('posted_at', '=', $proceedingPostDate)->where('title', '=', $proceedingTitle);
+				})->get()->count();
 
 		return $proceeding ? false : true;
 	}
@@ -80,7 +82,7 @@ class DubravkaProjectScraper extends ProjectScraperAbstract
 	protected function getFileReference($project)
 	{
 		$content = $project->getElementByTagName('h1')->nextSibling()->find('.col-sm-12', 0)->children;
-		
+
 		foreach ($content as $elem){
 			if ($elem->tag == 'p') {
 				if (preg_match("/([\p{L}0-9]+[-]?[\p{L}0-9]+)+(\/([\p{L}0-9]*[-]?[\p{L}0-9]+)+)+/u", $elem->plaintext, $matches)) {
@@ -89,8 +91,7 @@ class DubravkaProjectScraper extends ProjectScraperAbstract
 			}
 		}
 
-		return isset($file_reference)? $file_reference : null;
-
+		return isset($file_reference) ? $file_reference : null;
 	}
 
 	protected function getDates($project)

@@ -14,9 +14,7 @@ class VajnoryProjectScraper extends ProjectScraperAbstract
 
 	protected function getAllProjects()
 	{
-		$projects = $this->web->getElementById('contentHolder')->children();
-		unset($projects[0]); //remove empty block
-		array_pop($projects);  //remove pagination
+		$projects = $this->web->getElementById('block-system-main')->find('.views-row');
 
 		return $projects;
 	}
@@ -27,24 +25,24 @@ class VajnoryProjectScraper extends ProjectScraperAbstract
 		$proceedingUrl = $this->domain . '/' . htmlspecialchars_decode($detailsUrl);
 
 		$detailsHtml = new Htmldom($proceedingUrl);
-		$projectDetails = $detailsHtml->getElementById('contentHolder');
-
+		$projectDetails = $detailsHtml->getElementById('content');
+		
 		if (!$this->isBuildingInfo($projectDetails)) {
 			return false;
 		}
 
-		if (!$this->isProjectNew($project)) {
+		if (!$this->isProjectNew($projectDetails)) {
 			return false;
 		}
-
+		
 		$data['proceedings'] = [
 			'title' => $this->getProceedingTitle($projectDetails),
 			'description' => $this->getProceedingDescription($projectDetails),
-			'posted_at' => $this->getPostDate($projectDetails),
+			'posted_at' => $this->getProceedingPostDate($projectDetails),
 			'url' => $proceedingUrl,
-			'files' => $this->getFile($projectDetails)
+			'files' => $this->getFiles($projectDetails)
 		];
-
+		
 		return $data;
 	}
 
@@ -85,7 +83,7 @@ class VajnoryProjectScraper extends ProjectScraperAbstract
 	{
 		$proceedingTitle = $this->getProceedingTitle($project);
 
-		$proceeding = Project::where('city_district_id', '=', $this->cityDisctrictId)
+		$proceeding = Project::where('city_district_id', '=', $this->city_district_id)
 				->whereHas('proceedings', function($q) use ($proceedingTitle)
 				{
 					$q->where('title', '=', $proceedingTitle);
@@ -101,24 +99,27 @@ class VajnoryProjectScraper extends ProjectScraperAbstract
 
 	protected function getProceedingDescription($project)
 	{
-		return $project->find('div', 2)->plaintext;
+		if($des = $project->find('.field-type-text-with-summary',0) ){
+			return $des->plaintext;
+		}
+		
+		return $this->getProceedingTitle($project);
 	}
 
-	protected function getPostDate($project)
+	protected function getProceedingPostDate($project)
 	{
-		$post = $project->find('.date', 0)->plaintext;
-		return $post;
+		return $project->find('.date-display-single', 0)->content;
 	}
 
-	protected function getFile($project)
+	protected function getFiles($project)
 	{
-		$links = $project->find('a');
-		array_pop($links);  //remove back link
+		$rows= $project->find('.table tr');
+		unset($rows[0]); //remove td in thead
 
 		$files = [];
-		foreach ($links as $link){
+		foreach ($rows as $row){
 			$files[] = [
-				'url' => $this->domain . $link->href
+				'url' => $row->find('a',0)->href
 			];
 		}
 
