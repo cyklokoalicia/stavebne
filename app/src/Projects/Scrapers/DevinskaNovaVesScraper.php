@@ -32,7 +32,7 @@ class DevinskaNovaVesScraper extends ProjectScraperAbstract
 			'url' => $this->url,
 			'files' => $this->getFile($project)
 		];
-		
+				
 		return $data;
 	}
 

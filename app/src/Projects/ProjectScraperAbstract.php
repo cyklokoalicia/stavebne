@@ -74,9 +74,9 @@ abstract class ProjectScraperAbstract
 		if (!$this->existUrl($url)) {
 			return false;
 		};
-		
+
 		$htmlDom = new Htmldom($url);
-				
+
 		return $htmlDom;
 	}
 
@@ -99,9 +99,9 @@ abstract class ProjectScraperAbstract
 		$this->web = $this->openWeb($this->url);
 
 		$projects = $this->getAllProjects();
-		
+
 		if (empty($projects)) {
-			throw new \Monitor\src\Projects\EmptyProjectsException('On web->' . $this->web .' for city district ' . $city_district);
+				throw new \Monitor\src\Projects\EmptyProjectsException('On web->' . $this->web . ' for city district ' . $this->city_district);
 		}
 
 		$newData = [];
@@ -112,7 +112,7 @@ abstract class ProjectScraperAbstract
 		foreach ($projects as $project){
 
 			$data = $this->getData($project);
-			
+
 			if ($data == false || $data == null || empty($data)) {
 				continue;
 			}
@@ -216,7 +216,11 @@ abstract class ProjectScraperAbstract
 		if (isset($proceeding['description'])) {
 			$stringsArray[] = $proceeding['description'];
 		}
-		
+
+		if (!(isset($proceeding['file_reference']))) {
+			$proceeding['file_reference'] = $this->getProceedingFileReferenceFromStrings($stringsArray);
+		}
+
 		if (!isset($proceeding['proceeding_type'])) {
 			$proceedingType = $this->getProceedingType($stringsArray);
 			$proceeding['proceeding_type_id'] = ProceedingType::where('name', '=', $proceedingType)->first()->id;
@@ -227,7 +231,7 @@ abstract class ProjectScraperAbstract
 			$proceedingPhase = $this->getProceedingPhase($stringsArray);
 			$proceeding['proceeding_phase_id'] = ProceedingPhase::where('name', '=', $proceedingPhase)->first()->id;
 		}
-		
+
 		$newProceeding = $this->proceedingStorer->store($proceeding);
 
 		if (isset($proceeding['files'])) {
@@ -253,6 +257,18 @@ abstract class ProjectScraperAbstract
 		}
 
 		return $change;
+	}
+
+	//search file reference in all strings ( title, description)
+	protected function getProceedingFileReferenceFromStrings(array $arrayStrings)
+	{
+		foreach ($arrayStrings as $string){
+			if (preg_match("/([\p{L}0-9][-]?)+(\/([\p{L}0-9][-]?)+){3,}/u", $string, $matches)) {
+				$file_reference = $matches[0];
+			}
+		}
+
+		return isset($file_reference) ? $file_reference : null;
 	}
 
 	//search proceeding type in all strings ( title, description)

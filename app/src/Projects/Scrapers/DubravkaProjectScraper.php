@@ -79,13 +79,13 @@ class DubravkaProjectScraper extends ProjectScraperAbstract
 		return rtrim($description, $newLine);
 	}
 
-	protected function getFileReference($project)
+	function getFileReference($project)
 	{
 		$content = $project->getElementByTagName('h1')->nextSibling()->find('.col-sm-12', 0)->children;
 
 		foreach ($content as $elem){
 			if ($elem->tag == 'p') {
-				if (preg_match("/([\p{L}0-9]+[-]?[\p{L}0-9]+)+(\/([\p{L}0-9]*[-]?[\p{L}0-9]+)+)+/u", $elem->plaintext, $matches)) {
+				if (preg_match("/([\p{L}0-9][-]?)+(\/([\p{L}0-9][-]?)+){3,}/u", $elem->plaintext, $matches)) {
 					$file_reference = $matches[0];
 				}
 			}

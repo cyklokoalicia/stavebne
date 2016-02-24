@@ -156,13 +156,12 @@ return [
         Monitor\Providers\AuthServiceProvider::class,
         Monitor\Providers\EventServiceProvider::class,
         Monitor\Providers\RouteServiceProvider::class,
-		
+		Monitor\src\Htmldom\HtmldomServiceProvider::class,
 		/*
 		 * Third party Service Providers
 		 */		
 		
 		Orangehill\Iseed\IseedServiceProvider::class,
-		Yangqi\Htmldom\HtmldomServiceProvider::class,
     ],
 
     /*
@@ -215,7 +214,7 @@ return [
 		 * Third party packages
 		 */
 		
-		'Htmldom' => Yangqi\Htmldom\Htmldom::class,
+		'Htmldom' => Monitor\src\Htmldom\Htmldom::class,
     ],
 
 ];
