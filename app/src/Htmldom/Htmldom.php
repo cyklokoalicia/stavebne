@@ -182,7 +182,10 @@ class Htmldom
 		curl_setopt($ch, CURLOPT_COOKIEFILE, $cookiefile);
 		curl_setopt($ch, CURLOPT_COOKIEJAR, $cookiefile);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
 		curl_setopt($ch, CURLOPT_NOBODY, false);
+		curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 		$contents = curl_exec($ch);

@@ -79,6 +79,8 @@ class ProjectScraperStrategy
 			$savedData = $scraper->scrape();
 		} catch (EmptyProjectsException $e) {
 			Log::error($e->errorMessage());
+			
+			return false;
 		}
 
 		return $savedData;

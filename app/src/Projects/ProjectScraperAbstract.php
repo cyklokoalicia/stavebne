@@ -101,7 +101,7 @@ abstract class ProjectScraperAbstract
 		$projects = $this->getAllProjects();
 
 		if (empty($projects)) {
-				throw new \Monitor\src\Projects\EmptyProjectsException('On web->' . $this->web . ' for city district ' . $this->city_district);
+				throw new \Monitor\src\Projects\EmptyProjectsException('On web->' . $this->url. ' for city district ' . $this->city_district);
 		}
 
 		$newData = [];
