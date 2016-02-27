@@ -2,31 +2,15 @@
 
 namespace Monitor\src\Projects;
 
-use Monitor\CityDistrict;
-use Monitor\ProceedingPhase;
-use Monitor\ProceedingType;
-use Monitor\src\Files\FileUploader;
-use Monitor\src\Proceedings\ProceedingStoreCommand;
 use Monitor\src\Projects\ProjectScraperStrategy;
-use Monitor\src\Projects\ProjectStoreCommand;
 
 class PullNewProjectsDataCommand
 {
-	protected $fileUploader;
-	protected $projectScraper;
-	protected $projectStorer;
 	protected $proceedingStorer;
 
-	public function __construct(
-		ProceedingStoreCommand $proceedingStorer,
-		ProjectScraperStrategy $projectScraper,
-		ProjectStoreCommand $projectStorer,
-		FileUploader $fileUploader)
+	public function __construct(ProjectScraperStrategy $projectScraper)
 	{
-		$this->fileUploader = $fileUploader;
-		$this->proceedingStorer = $proceedingStorer;
 		$this->projectScraper = $projectScraper;
-		$this->projectStorer = $projectStorer;
 	}
 	
 	public function pull()
