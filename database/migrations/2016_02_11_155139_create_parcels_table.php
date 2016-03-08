@@ -13,8 +13,8 @@ class CreateParcelsTable extends Migration
     public function up()
     {
         Schema::create('parcels', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name')->default(null);
+            $table->string('number')->index();
+            $table->integer('ownership_document_number');
 			$table->char('type', 1);
 			$table->decimal('gps_lon', 11, 7);
 			$table->decimal('gps_lat', 11, 7);

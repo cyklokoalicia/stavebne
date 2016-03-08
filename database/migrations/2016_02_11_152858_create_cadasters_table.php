@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateKadastersTable extends Migration
+class CreateCadastersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class CreateKadastersTable extends Migration
      */
     public function up()
     {
-        Schema::create('kadasters', function (Blueprint $table) {
+        Schema::create('cadastres', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
 			$table->integer('city_district_id')->unsigned();			
@@ -28,11 +28,11 @@ class CreateKadastersTable extends Migration
      */
     public function down()
     {
-		Schema::table('kadasters', function (Blueprint $table)
+		Schema::table('cadastres', function (Blueprint $table)
         {
-            $table->dropForeign('kadasters_city_district_id_foreign');
+            $table->dropForeign('cadastres_city_district_id_foreign');
         });
 		
-        Schema::drop('kadasters');
+        Schema::drop('cadastres');
     }
 }

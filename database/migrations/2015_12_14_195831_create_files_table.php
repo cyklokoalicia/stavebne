@@ -21,11 +21,12 @@ class CreateFilesTable extends Migration
 			$table->string('url', 512)->collation('ascii_general_ci')->comment('URL to file');
             $table->integer('file_size')->unsigned()->comment('bytes');
 			$table->text('metadata')->nullable()->default(null);
-			$table->boolean('ocr_processed')->default(false)->comment('processed through OCR');
+			$table->integer('file_process_id')->unsigned();
 			$table->integer('proceeding_id')->unsigned();
 			$table->timestamps();
 			$table->softDeletes();
 			
+			$table->foreign('file_process_id')->references('id')->on('file_processes');
             $table->foreign('proceeding_id')->references('id')->on('proceedings');
         });
     }
@@ -39,6 +40,7 @@ class CreateFilesTable extends Migration
     {
 		Schema::table('files', function (Blueprint $table)
         {
+			$table->dropForeign('files_proceeding_file_process_id');
             $table->dropForeign('files_proceeding_id_foreign');
         });
 		
