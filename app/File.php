@@ -14,6 +14,6 @@ class File extends Model
 		'url',
 		'file_size',
 		'metadata',
-		'ocr_processed',
+		'file_process_id',
 		'proceeding_id'];
 }
