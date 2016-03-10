@@ -47,12 +47,12 @@ class DubravkaProjectScraper extends ProjectScraperAbstract
 	protected function isProjectNew($project)
 	{
 		$proceedingPostDate = $this->getDates($project)[0];
-		$proceedingTitle = $this->getProceedingTitle($project);
+		$proceedingDescription = $this->getProceedingDescription($project);
 
 		$proceeding = Project::where('city_district_id', '=', $this->city_district_id)
-				->whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingTitle)
+				->whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingDescription)
 				{
-					$q->where('posted_at', '=', $proceedingPostDate)->where('title', '=', $proceedingTitle);
+					$q->where('posted_at', '=', $proceedingPostDate)->where('description', '=', $proceedingDescription);
 				})->get()->count();
 
 		return $proceeding ? false : true;
@@ -76,7 +76,7 @@ class DubravkaProjectScraper extends ProjectScraperAbstract
 			}
 		}
 
-		return rtrim($description, $newLine);
+		return trim(rtrim($description, $newLine));
 	}
 
 	function getFileReference($project)
@@ -101,7 +101,7 @@ class DubravkaProjectScraper extends ProjectScraperAbstract
 
 		foreach ($content as $elem){
 			if ($elem->tag == 'p') {
-				if (preg_match_all("/\d{2}.\d{2}.\d{4}/", $elem->plaintext, $d)) {
+				if (preg_match_all("/\d{2}\.\d{2}\.\d{4}/", $elem->plaintext, $d)) {
 					$dates[] = isset($d[0][0]) ? \DateTime::createFromFormat('d.m.Y', $d[0][0])->format('Y-m-d') : null;
 					$dates[] = isset($d[0][1]) ? \DateTime::createFromFormat('d.m.Y', $d[0][1])->format('Y-m-d') : null;
 				}

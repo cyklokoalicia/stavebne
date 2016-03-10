@@ -102,7 +102,7 @@ class CunovoAnnouncementsProjectScraper extends ProjectScraperAbstract
 
 	protected function getProceedingTitle($project)
 	{
-		return $project->getElementByTagName('h2')->plaintext;
+		return trim($project->getElementByTagName('h2')->plaintext);
 	}
 
 	protected function getProceedingDescription($project)

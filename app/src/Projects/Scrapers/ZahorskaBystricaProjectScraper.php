@@ -117,7 +117,7 @@ class ZahorskaBystricaProjectScraper extends ProjectScraperAbstract
 	protected function getDropDate($project)
 	{
 		$dropDate = $project->find('td', 2)->plaintext;
-		if (preg_match("/\d{2}.\d{2}.\d{4}/", $dropDate, $date)) {
+		if (preg_match("/\d{2}\.\d{2}\.\d{4}/", $dropDate, $date)) {
 			return \DateTime::createFromFormat('d.m.Y', $date[0])->format('Y-m-d');
 		}
 		return null;

@@ -60,7 +60,7 @@ class KarlovaVesPublicNoticeProjectScraper extends ProjectScraperAbstract
 
 	protected function getProceedingTitle($project)
 	{
-		return $project->getElementByTagName('h1')->plaintext;
+		return trim($project->getElementByTagName('h1')->plaintext);
 	}
 
 	protected function getProceedingDescription($project)

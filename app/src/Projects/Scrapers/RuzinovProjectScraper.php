@@ -78,7 +78,7 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 	protected function getProceedingFileReference($project)
 	{
 
-		return $project->getElementsByTagName('tr', 1)->find('td', 1)->plaintext;
+		return trim($project->getElementsByTagName('tr', 1)->find('td', 1)->plaintext);
 	}
 
 	protected function getProceedingPostDate($project)

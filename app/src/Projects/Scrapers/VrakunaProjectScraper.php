@@ -46,12 +46,12 @@ class VrakunaProjectScraper extends ProjectScraperAbstract
 	protected function isProjectNew($project)
 	{
 		$proceedingPostDate = $this->getProceedingPostDate($project);
-		$proceedingTitle = $this->getProceedingTitle($project);
+		$proceedingDescription = $this->getProceedingDescription($project);
 
 		$proceeding = Project::where('city_district_id', '=', $this->city_district_id)
-				->whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingTitle)
+				->whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingDescription)
 				{
-					$q->where('posted_at', '=', $proceedingPostDate)->where('title', '=', $proceedingTitle);
+					$q->where('posted_at', '=', $proceedingPostDate)->where('description', '=', $proceedingDescription);
 				})->get()->count();
 
 		return $proceeding ? false : true;
@@ -73,7 +73,7 @@ class VrakunaProjectScraper extends ProjectScraperAbstract
 			$description .= $elem->plaintext . $newLine;
 		}
 
-		return rtrim($description, $newLine);
+		return trim(rtrim($description, $newLine));
 	}
 
 	protected function getProceedingPostDate($project)
