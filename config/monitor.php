@@ -2,6 +2,7 @@
 
 return [
 	'file_path' => __DIR__ . '/../public/files/',
+	'text_file_path' => __DIR__ . '/../public/txt/',
 	'url' => [
 		'Ružinov' => 'http://www.ruzinov.sk/sk/uradna-tabula/index/tag:stavebny-urad/status:active',
 		'Staré Mesto' => 'http://www.staremesto.sk/sk/uradna-tabula/index/tag:stavebny-urad/status:active',
