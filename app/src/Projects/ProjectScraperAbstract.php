@@ -53,18 +53,26 @@ abstract class ProjectScraperAbstract
 		return $this->city_district_id = CityDistrict::where('name', '=', $this->city_district)->first()->id;
 	}
 
-	//get domain name with scheme
+	//get domain name with scheme (e.g html://example.com)
 	protected function getDomainName($url)
 	{
-		return parse_url($url, PHP_URL_SCHEME) . '://' . parse_url($url, PHP_URL_HOST);
+		$url = parse_url($url);
+		return $url['scheme'] . '://' . $url['host'];
 	}
 
 	protected function existUrl($url)
 	{
-		$handler = curl_init($url);
-		curl_setopt($handler, CURLOPT_RETURNTRANSFER, TRUE);
-		$resp = curl_exec($handler);
-		$httpStatus = curl_getinfo($handler, CURLINFO_HTTP_CODE);
+		$ua = 'Mozilla/5.0 (Windows NT 5.1; rv:16.0) Gecko/20100101 Firefox/16.0 (ROBOT)';
+
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_USERAGENT, $ua);
+		curl_setopt($ch, CURLOPT_NOBODY, true);
+		curl_exec($ch);
+
+		$httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 		return $httpStatus < 400 ? true : false;
 	}
@@ -154,10 +162,13 @@ abstract class ProjectScraperAbstract
 
 	protected function getCurlInfo($url)
 	{
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		$ua = 'Mozilla/5.0 (Windows NT 5.1; rv:16.0) Gecko/20100101 Firefox/16.0 (ROBOT)';
+
+		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_USERAGENT, $ua);
 		curl_setopt($ch, CURLOPT_HEADER, true);
 		curl_setopt($ch, CURLOPT_NOBODY, true);
 		curl_exec($ch);
@@ -192,6 +203,7 @@ abstract class ProjectScraperAbstract
 				'file_size' => $curlInfo['download_content_length'],
 				'mime_type' => $curlInfo['content_type'],
 				'file_extension' => $info['extension'],
+				'file_process_id' => 1,//saved
 				'proceeding_id' => $proceeding_id
 			];
 
@@ -200,6 +212,9 @@ abstract class ProjectScraperAbstract
 			$file_name = $newFile->id . '.' . $file_data['file_extension'];
 
 			$this->uploader->upload($encodedUrl, $file_name);
+			
+			$newFile->update(['file_process_id' => 2]); //downloaded
+
 		}
 	}
 
