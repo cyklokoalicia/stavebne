@@ -37,6 +37,11 @@ class FileProcessesTableSeeder extends Seeder
                 'id' => 4,
                 'name' => 'analyzed',
             ),
+			4 => 
+            array (
+                'id' => 5,
+                'name' => 'recognized',
+            ),
         ));
         
         
