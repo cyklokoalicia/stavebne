@@ -196,13 +196,14 @@ abstract class ProjectScraperAbstract
 
 			$curlInfo = $this->getCurlInfo($encodedUrl);
 			$info = pathinfo($file['url']);
-
+			
 			$file_data = [
 				'original_filename' => $info['basename'],
 				'url' => $encodedUrl,
 				'file_size' => $curlInfo['download_content_length'],
 				'mime_type' => $curlInfo['content_type'],
 				'file_extension' => $info['extension'],
+				'city_district_id' => $this->city_district_id,
 				'file_process_id' => 1,//saved
 				'proceeding_id' => $proceeding_id
 			];
