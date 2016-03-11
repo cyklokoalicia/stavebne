@@ -24,7 +24,7 @@ class CreateParcelsTable extends Migration
 			$table->timestamps();
 			$table->softDeletes();
 
-			$table->foreign('cadaster_id')->references('id')->on('cadasters');
+			$table->foreign('cadaster_id')->references('id')->on('cadastres');
 			$table->foreign('file_id')->references('id')->on('files');
 		});
 	}
