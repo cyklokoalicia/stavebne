@@ -14,7 +14,7 @@ class CreateOwnershipListsTable extends Migration
 	{
 		Schema::create('ownership_lists', function (Blueprint $table)
 		{
-			$table->integer('number');
+			$table->integer('number')->index();
 			$table->integer('file_id')->unsigned();
 			$table->timestamps();
 
@@ -33,7 +33,7 @@ class CreateOwnershipListsTable extends Migration
 		Schema::table('ownership_lists', function (Blueprint $table)
 		{
 			$table->dropForeign('ownership_lists_file_id_foreign');
-
+			$table->dropIndex('ownership_lists_number_index');
 		});
 
 		Schema::drop('ownership_lists');
