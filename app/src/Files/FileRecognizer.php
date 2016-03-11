@@ -11,9 +11,9 @@ class FileRecognizer
 
 	public function recognize()
 	{
-		$donwloadedFiles = File::where('file_process_id', '=', 2)->get();
+		$ocrdFiles = File::where('file_process_id', '=', 3)->get();
 		
-		foreach ($donwloadedFiles as $file){
+		foreach ($ocrdFiles as $file){
 			$txtFilePath = config('monitor.text_file_path') . $file->id . '.txt';
 			$text = file_get_contents($txtFilePath);
 
