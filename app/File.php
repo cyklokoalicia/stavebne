@@ -13,7 +13,7 @@ class File extends Model
 		'caption',
 		'url',
 		'file_size',
-		'metadata',
+		'city_district_id',
 		'file_process_id',
 		'proceeding_id'];
 }
