@@ -23,7 +23,7 @@ class FileAnalyzer
 						SELECT 
 							parcels.number,
 							parcels.file_id,
-							parcel_locations.ownership_document_number,
+							parcel_locations.ownership_list_number,
 							parcel_locations.gps_lat,
 							parcel_locations.gps_lon,
 							STD(parcel_locations.gps_lat) AS dev1,
@@ -32,9 +32,9 @@ class FileAnalyzer
 							JOIN parcel_locations ON parcels.number = parcel_locations.name 
 							JOIN ownership_lists ON ownership_lists.file_id = parcels.file_id 
 						WHERE 
-							parcel_locations.ownership_document_number = ownership_lists.number 
+							parcel_locations.ownership_list_number = ownership_lists.number 
 							AND parcels.file_id = ' . $file_id . '
-						GROUP BY parcels.number, parcels.ownership_document_number 
+						GROUP BY parcels.number, parcels.ownership_list_number 
 						HAVING	dev1 < 0.0001
 					) AS P 
 						ON parcels.number = P.number 
