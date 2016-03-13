@@ -16,7 +16,7 @@ class CreateParcelLocationsTable extends Migration
 		{
 			$table->string('name', 20)->index();
 			$table->integer('ownership_list_number')->index();
-			$table->integer('cadastre_id')->unsigned();
+			$table->integer('cadastre_id')->unsigned()->index();
 			$table->text('address');
 			$table->decimal('gps_lon', 11, 7);
 			$table->decimal('gps_lat', 11, 7);
