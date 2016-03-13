@@ -17,8 +17,8 @@ class CreateProjectsTable extends Migration
 			$table->string('title')->nullable()->default(null);
 			$table->text('description')->nullable()->default(null);
 			$table->text('aplicant')->nullable()->default(null);
-			$table->decimal('gps_lon', 11, 7);
-			$table->decimal('gps_lat', 11, 7);
+			$table->decimal('gps_lon', 11, 7)->nullable()->default(null);
+			$table->decimal('gps_lat', 11, 7)->nullable()->default(null);
 			$table->date('posted_at')->nullable()->default(null);
 			$table->date('droped_at')->nullable()->default(null);
 			$table->integer('city_district_id')->unsigned();

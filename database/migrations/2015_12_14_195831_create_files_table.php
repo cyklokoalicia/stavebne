@@ -20,8 +20,8 @@ class CreateFilesTable extends Migration
             $table->string('caption');
 			$table->string('url', 512)->collation('ascii_general_ci')->comment('URL to file');
             $table->integer('file_size')->unsigned()->comment('bytes');
-			$table->decimal('gps_lon', 11, 7);
-			$table->decimal('gps_lat', 11, 7);
+			$table->decimal('gps_lon', 11, 7)->nullable()->default(null);
+			$table->decimal('gps_lat', 11, 7)->nullable()->default(null);
 			$table->integer('city_district_id')->unsigned()->comment('where it was downloaded');
 			$table->integer('file_process_id')->unsigned();
 			$table->integer('proceeding_id')->unsigned();
