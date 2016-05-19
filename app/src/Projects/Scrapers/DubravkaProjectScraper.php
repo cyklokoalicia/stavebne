@@ -45,7 +45,7 @@ class DubravkaProjectScraper extends ProjectScraperAbstract
 	}
 
 	protected function isProjectNew($project)
-	{
+	{		
 		$proceedingPostDate = $this->getDates($project)[0];
 		$proceedingDescription = $this->getProceedingDescription($project);
 
@@ -96,7 +96,7 @@ class DubravkaProjectScraper extends ProjectScraperAbstract
 
 	protected function getDates($project)
 	{
-		$dates = [];
+		$dates = [null, null];
 		$content = $project->getElementByTagName('h1')->nextSibling()->find('.col-sm-12', 0)->children;
 
 		foreach ($content as $elem){

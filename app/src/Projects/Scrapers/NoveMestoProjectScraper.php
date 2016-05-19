@@ -77,6 +77,10 @@ class NoveMestoProjectScraper extends ProjectScraperAbstract
 
 	protected function getFile($project)
 	{
+		if(empty($project->getElementsByTagName('td', 3)->find('a', 0))){
+			return null;
+		}
+		
 		$href = $project->getElementsByTagName('td', 3)->find('a', 0)->href;
 
 			return ['url' => $this->domain . $href];

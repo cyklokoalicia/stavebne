@@ -13,9 +13,9 @@ class ZahorskaBystricaProjectScraper extends ProjectScraperAbstract
 
 	protected function getAllProjects()
 	{
-		$projects = $this->web->find('.art-article table tr');
+		$projects = $this->web->find('article');
 
-		//remove table header
+		//remove first hidden article
 		unset($projects[0]);
 
 		return $projects;
@@ -35,7 +35,6 @@ class ZahorskaBystricaProjectScraper extends ProjectScraperAbstract
 			'title' => $this->getProceedingTitle($project),
 			'description' => $this->getProceedingDescription($project),
 			'posted_at' => $this->getPostDate($project),
-			'droped_at' => $this->getDropDate($project),
 			'url' => $this->url,
 			'files' => [
 				'url' => $this->getFile($project)
@@ -94,7 +93,7 @@ class ZahorskaBystricaProjectScraper extends ProjectScraperAbstract
 
 	protected function getProceedingTitle($project)
 	{
-		return trim($project->find('td', 0)->plaintext);
+		return trim($project->find('h2', 0)->plaintext);
 	}
 
 	protected function getProceedingDescription($project)
@@ -104,7 +103,7 @@ class ZahorskaBystricaProjectScraper extends ProjectScraperAbstract
 
 	protected function getPostDate($project)
 	{
-		$postDate = $project->find('td', 1)->plaintext;
+		$postDate = $project->find('.entry-date', 0)->plaintext;
 		if (!strlen(trim($postDate))) {
 			return null;
 		}
@@ -114,17 +113,17 @@ class ZahorskaBystricaProjectScraper extends ProjectScraperAbstract
 		return $postDate;
 	}
 
-	protected function getDropDate($project)
-	{
-		$dropDate = $project->find('td', 2)->plaintext;
-		if (preg_match("/\d{2}\.\d{2}\.\d{4}/", $dropDate, $date)) {
-			return \DateTime::createFromFormat('d.m.Y', $date[0])->format('Y-m-d');
-		}
-		return null;
-	}
-
 	protected function getFile($project)
 	{
-		return $project->getElementByTagName('a')->href;
+		$proceedingUrl = $project->getElementByTagName('a')->href;	
+		$detailsHtml = new Htmldom($proceedingUrl);
+		
+		$anchor = $detailsHtml->find('.art-content article p a', 0);
+		
+		if (!strlen(trim($anchor))) {
+			return null;
+		}
+		
+		return $anchor->href;
 	}
 }

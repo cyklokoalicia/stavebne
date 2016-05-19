@@ -22,10 +22,15 @@ class VajnoryProjectScraper extends ProjectScraperAbstract
 	protected function getData($project)
 	{
 		$detailsUrl = $project->getElementByTagName('a')->getAttribute('href');
-		$proceedingUrl = $this->domain . '/' . htmlspecialchars_decode($detailsUrl);
-
+		$proceedingUrl = $this->domain . htmlspecialchars_decode($detailsUrl);		
 		$detailsHtml = new Htmldom($proceedingUrl);
 		$projectDetails = $detailsHtml->getElementById('content');
+		
+				
+		if(empty($projectDetails)){
+			return false;
+		}
+		
 		
 		if (!$this->isBuildingInfo($projectDetails)) {
 			return false;
