@@ -62,7 +62,12 @@ class DevinskaNovaVesScraper extends ProjectScraperAbstract
 
 	protected function getProceedingPostDate($project)
 	{
-		return trim($project->find('td', 1)->plaintext);
+		$tmp = $project->find('td', 1);
+		if( empty($tmp) )
+		{
+			return null;
+		}
+		return trim($tmp->plaintext);
 	}
 
 	protected function getFile($project)
