@@ -39,10 +39,13 @@ class PullProjects extends Command
 	public function handle()
 	{
 		$this->projectPuller->pull();
+		echo "pull ok\n";
 		$this->fileOcrdIdentification->identify();
+		echo "identification ok\n";
 		$this->fileRecognizer->recognize();
+		echo "recognification ok\n";	
 		$this->fileAnalyzer->analyze();
-
+		echo "analysis ok\n";
 		$this->info('ok');
 	}
 }
