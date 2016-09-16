@@ -19,7 +19,7 @@ class CreateParcelsTable extends Migration
 			$table->char('type', 1);
 			$table->decimal('gps_lon', 11, 7)->nullable()->default(null);
 			$table->decimal('gps_lat', 11, 7)->nullable()->default(null);
-			$table->integer('cadaster_id')->unsigned()->nullable->default(null);
+			$table->integer('cadaster_id')->unsigned()->nullable()->default(null);
 			$table->integer('file_id')->unsigned();
 			$table->timestamps();
 			$table->softDeletes();
