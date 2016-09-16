@@ -12,31 +12,31 @@ class DistrictsTableSeeder extends Seeder {
 	public function run()
 	{
 		\DB::table('districts')->delete();
-        
+#Districts (okresy) - according to REGPJ2015        
 		\DB::table('districts')->insert(array (
 			0 => 
 			array (
-				'id' => 1,
+				'id' => 101,
 				'name' => 'Bratislava I',
 			),
 			1 => 
 			array (
-				'id' => 2,
+				'id' => 102,
 				'name' => 'Bratislava II',
 			),
 			2 => 
 			array (
-				'id' => 3,
+				'id' => 103,
 				'name' => 'Bratislava III',
 			),
 			3 => 
 			array (
-				'id' => 4,
+				'id' => 104,
 				'name' => 'Bratislava IV',
 			),
 			4 => 
 			array (
-				'id' => 5,
+				'id' => 105,
 				'name' => 'Bratislava V',
 			),
 		));
