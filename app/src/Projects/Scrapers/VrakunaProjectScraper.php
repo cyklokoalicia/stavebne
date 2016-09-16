@@ -51,7 +51,7 @@ class VrakunaProjectScraper extends ProjectScraperAbstract
 		$proceeding = Project::where('city_district_id', '=', $this->city_district_id)
 				->whereHas('proceedings', function($q) use ($proceedingPostDate, $proceedingDescription)
 				{
-					$q->where('posted_at', '=', $proceedingPostDate)->where('description', '=', $proceedingDescription);
+					$q->where('description', '=', $proceedingDescription);
 				})->get()->count();
 
 		return $proceeding ? false : true;
