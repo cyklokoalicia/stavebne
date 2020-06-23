@@ -96,7 +96,8 @@ class RuzinovProjectScraper extends ProjectScraperAbstract
 		$dropDate = explode('&ndash;', $date);
 		$dropDate = str_replace("</em>", "", $dropDate[1]); // bug, remove extra </em> tag
 		$dropDate = \DateTime::createFromFormat('d.m.Y', trim($dropDate));
-
+		if($dropDate==false)
+			return null;
 		return $dropDate->format('Y-m-d');
 	}
 

@@ -13,7 +13,10 @@ class VrakunaProjectScraper extends ProjectScraperAbstract
 
 	protected function getAllProjects()
 	{
-		$projects = $this->web->getElementById('content')->find('.main-content-page .post');
+		$element=$this->web->getElementById('content');
+		if($element == null)
+			return null;
+		$projects = $element->find('.main-content-page .post');
 
 		return $projects;
 	}
