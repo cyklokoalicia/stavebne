@@ -3,14 +3,14 @@ Monitoring stavebnych konani Bratislava
 
 1. Clone repository and enter directory: `git clone git@github.com:cyklokoalicia/stavebne.git && cd stavebne`
 2. Install composer: `curl -sS https://getcomposer.org/installer | php`
-3. Install dependencies: `php composer.phar install`
+3. Install dependencies: `php composer.phar install  --no-scripts`
 4. Set whatever credentials are necessary:  Copy `.env.example` to `.env` and edit
 5. Prepare database: `php artisan migrate && php artisan db:seed`
 6. Run: `php artisan project:pull`
 
-# Prototyping version
+# Web version
 
-http://stavebne.cyklokoalicia.sk/
+http://konania.sk
 
 
 
